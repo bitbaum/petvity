@@ -6,7 +6,10 @@ import { ArrowLeft } from "lucide-react";
 import { APP, APP_URL } from "@/lib/config/app";
 import { getInstance } from "@/lib/db";
 import { blogPosts } from "@/lib/db/schema";
-import { parseBlogBody } from "@/lib/domain/blog-markup";
+import { ArticleBody } from "bip-kit/react";
+import { parseLongform } from "@/lib/domain/longform";
+import "bip-kit/styles.css";
+import "@/app/longform.css";
 import { formatDateShort } from "@/lib/utils/format";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
@@ -49,7 +52,7 @@ export default async function BlogPostPage({ params }: Params) {
   const t = await getTranslations({ locale, namespace: "blog" });
 
   const publishedAt = post.publishedAt ?? post.createdAt;
-  const blocks = parseBlogBody(post.body);
+  const blocks = parseLongform(post.body);
 
   const articleSchema = {
     "@context": "https://schema.org",
@@ -80,36 +83,8 @@ export default async function BlogPostPage({ params }: Params) {
         </p>
         <h1 className="ed-title-sm ed-title-on-dark mb-8 leading-tight">{post.title}</h1>
 
-        <div className="space-y-5">
-          {blocks.map((block, i) => {
-            if (block.type === "h2") {
-              return (
-                <h2 key={i} className="text-lg font-semibold text-[var(--platinum)] pt-4">
-                  {block.text}
-                </h2>
-              );
-            }
-            if (block.type === "ul") {
-              return (
-                <ul key={i} className="space-y-2 ps-1">
-                  {block.items.map((item, j) => (
-                    <li
-                      key={j}
-                      className="flex items-start gap-2.5 text-[var(--platinum-dim)] leading-relaxed"
-                    >
-                      <span className="text-[var(--champagne)] mt-0.5">·</span>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              );
-            }
-            return (
-              <p key={i} className="text-[var(--platinum-dim)] leading-relaxed">
-                {block.text}
-              </p>
-            );
-          })}
+        <div className="pv-longform">
+          <ArticleBody blocks={blocks} />
         </div>
 
         <div className="mt-12 pt-8 border-t border-[var(--hairline-soft)] flex flex-col sm:flex-row gap-3">

@@ -3,8 +3,12 @@
 import { useState, useEffect } from "react";
 import { Plus, Pencil, X, Eye, EyeOff, Trash2, ExternalLink, FileText } from "lucide-react";
 import PageHeader from "@/components/portal/PageHeader";
+import { readingTime } from "bip-kit";
+import "bip-kit/styles.css";
+import "@/app/longform.css";
 import { slugify, SLUG_PATTERN } from "@/lib/domain/blog";
-import { parseBlogBody, readingMinutes } from "@/lib/domain/blog-markup";
+import { parseLongform } from "@/lib/domain/longform";
+import LongformPreview from "./LongformPreview";
 
 /* ─── Types ──────────────────────────────────────────────────────────────── */
 
@@ -29,9 +33,9 @@ interface FormState {
 const EMPTY_FORM: FormState = { slug: "", title: "", excerpt: "", body: "" };
 
 const FORMAT_HINT = [
-  "## Subheading",
-  "- bullet point",
-  "Anything else is a paragraph. Blank line = new block.",
+  "## Subheading · - bullet · 1. numbered · > quote · > [!TIP] callout",
+  "![alt](url) image · ``` code fence · | tables | · $$math$$ · [^1] footnotes",
+  "Anything else is a paragraph. Blank line = new block. Markdown, no raw HTML.",
 ].join("\n");
 
 /* ─── Page ───────────────────────────────────────────────────────────────── */
@@ -137,7 +141,7 @@ export default function AdminBlogPage() {
     await load();
   }
 
-  const preview = parseBlogBody(form.body);
+  const preview = parseLongform(form.body);
 
   return (
     <div>
@@ -232,31 +236,16 @@ export default function AdminBlogPage() {
               <p className="text-xs text-[var(--muted)] mt-1 whitespace-pre-line">{FORMAT_HINT}</p>
             </div>
 
-            {/* Live structure preview — shows how the text will break into
-                blocks, so a mistyped bullet is visible before publishing. */}
+            {/* Live preview — the same parse + reference renderer as the
+                public post page, so a mistyped bullet (or callout, table,
+                fence…) is visible before publishing. */}
             {form.body.trim() && (
               <div className="rounded-xl border border-[var(--border)] bg-[var(--off)] p-4">
                 <p className="text-xs uppercase tracking-wide text-[var(--muted)] mb-3">
-                  Preview · {preview.length} blocks · {readingMinutes(form.body)} min read
+                  Preview · {preview.length} blocks · {readingTime(preview).minutes} min read
                 </p>
-                <div className="max-h-64 overflow-y-auto space-y-2">
-                  {preview.map((b, i) =>
-                    b.type === "h2" ? (
-                      <h3 key={i} className="font-semibold text-[var(--ink)]">
-                        {b.text}
-                      </h3>
-                    ) : b.type === "ul" ? (
-                      <ul key={i} className="list-disc ps-5 text-sm text-[var(--ink2)]">
-                        {b.items.map((it, j) => (
-                          <li key={j}>{it}</li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <p key={i} className="text-sm text-[var(--ink2)]">
-                        {b.text}
-                      </p>
-                    ),
-                  )}
+                <div className="max-h-64 overflow-y-auto">
+                  <LongformPreview blocks={preview} />
                 </div>
               </div>
             )}

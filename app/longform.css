@@ -1,0 +1,66 @@
+/**
+ * Petvity tokens → bip-kit's --bp-* theming contract.
+ *
+ * Two scopes, both class-based so nothing leaks into the rest of the app
+ * (bip-kit/styles.css defines its neutral defaults on :root; custom
+ * properties on a wrapper class always win for descendants, in light AND
+ * dark OS preference alike):
+ *
+ *   .pv-longform — the public blog reader on the obsidian marketing surface
+ *                  (editorial-luxury layer: platinum text, champagne accent).
+ *   .pv-preview  — the admin editor's live preview on the light product
+ *                  theme (ink text on off-white).
+ *
+ * Every value references the design-token SSOT in app/globals.css — no
+ * literal colors here (enforced by scripts/ci/check-css-vars.mjs).
+ */
+
+.pv-longform {
+  --bp-font-sans: var(--font-sans, ui-sans-serif, system-ui, sans-serif);
+  --bp-font-mono: var(--mono-face);
+
+  --bp-bg: transparent; /* the lux-section band paints the ground */
+  --bp-surface: var(--onyx);
+  --bp-fg: var(--platinum);
+  --bp-fg-muted: var(--platinum-dim);
+  --bp-fg-faint: var(--mist-dark);
+  --bp-border: var(--hairline-soft);
+
+  --bp-accent: var(--champagne);
+  --bp-accent-contrast: var(--obsidian);
+
+  /* Callouts on the dark editorial surface: notes stay achromatic, tips wear
+     the house champagne, warnings/danger keep their semantic hue. */
+  --bp-note: var(--platinum-dim);
+  --bp-note-bg: color-mix(in srgb, var(--platinum) 6%, transparent);
+  --bp-tip: var(--champagne);
+  --bp-tip-bg: color-mix(in srgb, var(--champagne) 9%, transparent);
+  --bp-warn: var(--warn);
+  --bp-warn-bg: color-mix(in srgb, var(--warn) 12%, transparent);
+  --bp-danger: var(--danger-soft);
+  --bp-danger-bg: color-mix(in srgb, var(--danger) 14%, transparent);
+}
+
+.pv-preview {
+  --bp-font-sans: var(--font-sans, ui-sans-serif, system-ui, sans-serif);
+  --bp-font-mono: var(--mono-face);
+
+  --bp-bg: transparent;
+  --bp-surface: var(--off);
+  --bp-fg: var(--ink);
+  --bp-fg-muted: var(--ink2);
+  --bp-fg-faint: var(--muted);
+  --bp-border: var(--border);
+
+  --bp-accent: var(--champagne-dim);
+  --bp-accent-contrast: var(--off);
+
+  --bp-note: var(--info);
+  --bp-note-bg: var(--info-bg);
+  --bp-tip: var(--champagne-dim);
+  --bp-tip-bg: color-mix(in srgb, var(--champagne) 12%, transparent);
+  --bp-warn: var(--warn-text);
+  --bp-warn-bg: var(--warn-bg);
+  --bp-danger: var(--danger-text);
+  --bp-danger-bg: var(--danger-bg);
+}

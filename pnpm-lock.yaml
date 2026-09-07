@@ -53,6 +53,9 @@ importers:
       bcryptjs:
         specifier: ^3.0.3
         version: 3.0.3
+      bip-kit:
+        specifier: ^0.2.1
+        version: 0.2.1(react@19.2.8)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -2665,6 +2668,22 @@ packages:
   bcryptjs@3.0.3:
     resolution: {integrity: sha512-GlF5wPWnSa/X5LKM1o0wz0suXIINz1iHRLvTS+sLyi7XPbe5ycmYI3DlZqVGZZtDgl4DmasFg7gOB3JYbphV5g==}
     hasBin: true
+
+  bip-kit@0.2.1:
+    resolution: {integrity: sha512-vXl/u6gB68U4DN/EBB2DFYJStKBgP+364U+FTyUYmz8MMrGe0JBE8BfDb7yhkAO0ajXjLkP7ZP0b5laHCN3n6Q==}
+    engines: {node: '>=20'}
+    peerDependencies:
+      katex: '>=0.16'
+      mermaid: '>=10'
+      react: '>=18'
+      shiki: '>=1'
+    peerDependenciesMeta:
+      katex:
+        optional: true
+      mermaid:
+        optional: true
+      shiki:
+        optional: true
 
   brace-expansion@1.1.18:
     resolution: {integrity: sha512-Edep/X9fGqVNmzKBVsDYIOtD+z1tuezV70LBjdCst9Tqu76lsnvRiZ6oTic1n+/BIwX6QDGAO94PN4N2SADvtw==}
@@ -6831,6 +6850,10 @@ snapshots:
   baseline-browser-mapping@2.11.21: {}
 
   bcryptjs@3.0.3: {}
+
+  bip-kit@0.2.1(react@19.2.8):
+    dependencies:
+      react: 19.2.8
 
   brace-expansion@1.1.18:
     dependencies:
