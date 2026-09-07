@@ -679,10 +679,10 @@ export const blogPosts = pgTable(
     title: varchar("title", { length: 200 }).notNull(),
     /** Shown on the index and used as the meta description. */
     excerpt: text("excerpt").notNull(),
-    /** The author's own text in the lightweight markup parsed by
-     *  lib/domain/blog-markup.ts. Stored as written rather than as parsed blocks:
-     *  the source is the single truth, so the renderer can improve without a
-     *  data migration. */
+    /** The author's own markdown, parsed into typed blocks at render time by
+     *  lib/domain/longform.ts (bip-kit). Stored as written rather than as
+     *  parsed blocks: the source is the single truth, so the renderer can
+     *  improve without a data migration. */
     body: text("body").notNull(),
     status: blogPostStatusEnum("status").notNull().default("draft"),
     /** Set the first time a post is published, and the date readers see. Null
