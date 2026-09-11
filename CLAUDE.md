@@ -7,7 +7,7 @@ Petvity gives pet owners a single place to monitor their pet's daily wellness, c
 
 # Petvity — Project Standards & Agentic Runbook
 
-**What this is:** Global pet care platform. Owners manage multi-species pet profiles, track physical + emotional health KPIs, connect with vets/sitters (Phase 2), access a marketplace (Phase 3), and list pets for cross-border adoption (Phase 4). Pets can have public "influencer profiles." Long-term vision: digital twins (IoT sensors, cameras, emotional state). Part of the same ecosystem as VitaReBa and Surf Your Life.
+**What this is:** Global pet care platform. Owners manage multi-species pet profiles, track physical + emotional health KPIs, connect with vets/sitters (Phase 2), access a marketplace (Phase 3), and list pets for cross-border adoption (Phase 4). Pets can have public "influencer profiles." Long-term vision: digital twins (IoT sensors, cameras, emotional state). Part of the same ecosystem as Vita and Surf Your Life.
 
 **Deployed URLs:**
 - Production: https://petvity.orangecat.ch
