@@ -54,8 +54,8 @@ importers:
         specifier: ^3.0.3
         version: 3.0.3
       bip-kit:
-        specifier: ^0.2.6
-        version: 0.2.6(react@19.2.8)
+        specifier: ^0.2.7
+        version: 0.2.7(react@19.2.8)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -2669,8 +2669,8 @@ packages:
     resolution: {integrity: sha512-GlF5wPWnSa/X5LKM1o0wz0suXIINz1iHRLvTS+sLyi7XPbe5ycmYI3DlZqVGZZtDgl4DmasFg7gOB3JYbphV5g==}
     hasBin: true
 
-  bip-kit@0.2.6:
-    resolution: {integrity: sha512-SyXnD0z7v37/UDltFTi7otWfoNmb/55wm+u+I8wy7vzuYLk8XzudxvGvK55HAZZ2UT2uuxbLuyUADNXe7rRbcA==}
+  bip-kit@0.2.7:
+    resolution: {integrity: sha512-oe4f2IXAYuOQ1ocDLg0ET27qpNfb7nOSVobFEbu+xLyvluZ1rLygjOhg4b9tB9CxTKb9R35Bh3RdibVLxFAYkw==}
     engines: {node: '>=20'}
     peerDependencies:
       katex: '>=0.16'
@@ -6851,7 +6851,7 @@ snapshots:
 
   bcryptjs@3.0.3: {}
 
-  bip-kit@0.2.6(react@19.2.8):
+  bip-kit@0.2.7(react@19.2.8):
     dependencies:
       react: 19.2.8
 
