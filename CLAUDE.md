@@ -318,7 +318,7 @@ Algorithm:
 - **Credentials provider**: email/password with bcrypt (BCRYPT_SALT_ROUNDS=12)
 - **Google OAuth**: configured in NextAuth but needs env vars set (GOOGLE_CLIENT_ID/SECRET)
 - **Role resolution**: `ADMIN_EMAILS` env var → admin. All others → pet_owner. Vet/sitter set manually by admin (Phase 2).
-- **Guards pattern** (same as VitaReBa):
+- **Guards pattern** (same as the `vitareba` repo — the Vita clinic portal):
   ```typescript
   const { session, error } = await requireSession();
   if (error) return error;
