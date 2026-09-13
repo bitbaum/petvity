@@ -36,9 +36,9 @@ pnpm test         # vitest unit tests
 pnpm verify       # format check + lint + typecheck + CSS-var check + test — the pre-done gate (mirrors CI)
 
 # deploy: merging to main deploys automatically — .github/workflows/deploy.yml calls
-# fleetcrown's reusable selfhost-deploy workflow (waits for this commit's CI to go green).
+# loki's reusable selfhost-deploy workflow (waits for this commit's CI to go green).
 # Manual fallback: builds standalone, rsyncs to the box, restarts the service, health-checks
-scripts/hetzner/deploy.sh petvity   # run from the fleetcrown repo's scripts/hetzner/
+scripts/hetzner/deploy.sh petvity   # run from the loki repo's scripts/hetzner/
 ```
 
 **Before declaring any change done, run `pnpm verify`** (format check + lint +
@@ -72,7 +72,7 @@ Production env lives in `.env.selfhost.local` on the box (sourced by the systemd
 | `NEXT_PUBLIC_APP_URL` | https://petvity.orangecat.ch |
 | `AUTH_URL` | https://petvity.orangecat.ch — **required**, see gotcha 9 |
 | `AUTH_TRUST_HOST` | true |
-| `RESEND_API_KEY` | Set — verified 2026-08-15, sending domain `fleetcrown.orangecat.ch` |
+| `RESEND_API_KEY` | Set — verified 2026-08-15, sending domain `loki.orangecat.ch` |
 | `RESEND_FROM` | `Petvity <noreply@fleetcrown.orangecat.ch>` |
 | `ADMIN_EMAILS` | Set |
 
