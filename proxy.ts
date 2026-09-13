@@ -36,7 +36,7 @@ const PRIVATE_API_PREFIXES = [
   // payment, an unguessable order token.
   "/api/orders",
   // /api/cron/* is intentionally NOT gated — cron routes self-authenticate via
-  // the CRON_SECRET bearer (box systemd timers; fleetcrown install-app-crons.sh).
+  // the CRON_SECRET bearer (box systemd timers; loki install-app-crons.sh).
   "/api/admin",
 ];
 

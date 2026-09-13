@@ -104,7 +104,7 @@ lifecycle, seller notifications, receipts — is generated from that.
 
 The infrastructure half is genuinely solved, which is why the hour is realistic:
 
-- **Provisioning** — `fleetcrown/scripts/hetzner/apps.conf` is a manifest
+- **Provisioning** — `loki/scripts/hetzner/apps.conf` is a manifest
   (`name|port|domains|repo|app_dir|db`) and `sync-infra.sh` generates the
   systemd unit, launch script and Caddy vhost from it, idempotently. Adding an
   app is one line and one command. 13 apps run this way today.

@@ -20,7 +20,7 @@ the ones it does not.
 | CI workflow | 23 | 23 | every repo |
 | `globals.css` / design tokens | 17 | 17 | despite a `design-tokens` repo existing |
 | Deploy workflow | 15 | 16 | |
-| OG image generation | 14 | 27 | fleetcrown 6 |
+| OG image generation | 14 | 27 | loki 6 |
 | Sitemap / robots | 10 | 21 | |
 | Account settings pages | 10 | 20 | orangecat 3 |
 | **Cron auth** | **9** | **43** | **orangecat 9, petvity 7, evig 6** |
@@ -28,7 +28,7 @@ the ones it does not.
 | Empty / error / loading states | 7 | 22 | orangecat 9 |
 | Legal pages | 7 | 14 | |
 | Blog / CMS | 6 | ~116 | evig 98 — that is a CMS, not a blog |
-| **Stripe webhook** | **6** | **24** | **fleetcrown 9** |
+| **Stripe webhook** | **6** | **24** | **loki 9** |
 | Reviews / ratings | 5 | ~46 | evig 40 |
 | i18n config + messages | 5 | ~55 | |
 | Auth config | 5 | 7 | |
