@@ -11,6 +11,7 @@ import { EmptyState, ErrorState } from "@/components/portal/PageState";
 import { useTranslations } from "next-intl";
 import HubTabs from "@/components/portal/HubTabs";
 import PageHeader from "@/components/portal/PageHeader";
+import { UploadedImage } from "@/components/ui/UploadedImage";
 
 /* ─── Types ──────────────────────────────────────────────────────────────── */
 
@@ -59,8 +60,7 @@ function ListingCard({ listing }: { listing: AdoptionListing }) {
       {/* Avatar */}
       <div className="aspect-[4/3] bg-[var(--teal-light)] flex items-center justify-center text-5xl relative overflow-hidden">
         {listing.pet.avatarUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <UploadedImage
             src={listing.pet.avatarUrl}
             alt={listing.pet.name}
             className="w-full h-full object-cover"

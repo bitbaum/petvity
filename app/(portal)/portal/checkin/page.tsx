@@ -19,6 +19,7 @@ import { getTranslations } from "next-intl/server";
 import PageHeader from "@/components/portal/PageHeader";
 import { getPortalLocale } from "@/lib/i18n/portal-locale";
 import { translateSignalReason } from "@/lib/i18n/signal-reason";
+import { UploadedImage } from "@/components/ui/UploadedImage";
 
 export default async function CheckinPage() {
   const session = await auth();
@@ -151,8 +152,7 @@ export default async function CheckinPage() {
                 {/* Avatar */}
                 <div className="w-12 h-12 rounded-full bg-[var(--teal-light)] flex items-center justify-center text-2xl flex-shrink-0 overflow-hidden">
                   {pet.avatarUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
+                    <UploadedImage
                       src={pet.avatarUrl}
                       alt={pet.name}
                       className="w-full h-full object-cover"

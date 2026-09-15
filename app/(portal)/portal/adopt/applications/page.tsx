@@ -10,6 +10,7 @@ import type { SpeciesId } from "@/lib/config/species";
 import { formatDateShort, formatAdoptionFee } from "@/lib/utils/format";
 import { useTranslations } from "next-intl";
 import PageHeader from "@/components/portal/PageHeader";
+import { UploadedImage } from "@/components/ui/UploadedImage";
 
 interface MyApplication {
   applicationId: string;
@@ -106,8 +107,7 @@ export default function MyApplicationsPage() {
                   {/* Pet avatar */}
                   <div className="w-14 h-14 rounded-2xl bg-[var(--teal-light)] flex items-center justify-center text-2xl flex-shrink-0 overflow-hidden">
                     {app.petAvatarUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
+                      <UploadedImage
                         src={app.petAvatarUrl}
                         alt={app.petName}
                         className="w-full h-full object-cover"

@@ -36,6 +36,20 @@ const eslintConfig = defineConfig([
       "react-hooks/set-state-in-effect": "off",
     },
   },
+  // No `console.log` in the app. `warn` and `error` stay: they are how a route
+  // reports a failure it swallowed, and they are what `journalctl -u petvity-app`
+  // shows an operator at 2am. A `console.log` is a debugging line somebody forgot,
+  // and on a server it writes a stranger's data into the journal forever.
+  {
+    rules: {
+      "no-console": ["error", { allow: ["warn", "error"] }],
+    },
+  },
+  // Scripts are operator tools run by hand or by CI; their stdout IS the output.
+  {
+    files: ["scripts/**"],
+    rules: { "no-console": "off" },
+  },
   // Test files: allow `any` — mocks need escape hatches to satisfy Drizzle/Next types
   // Allow `_`-prefixed unused vars — conventional "intentionally ignored" pattern in destructuring
   {

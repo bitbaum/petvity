@@ -19,6 +19,7 @@ import PageHeader from "@/components/portal/PageHeader";
 import { Plus, ChevronRight, PawPrint } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { getPortalLocale } from "@/lib/i18n/portal-locale";
+import { UploadedImage } from "@/components/ui/UploadedImage";
 
 export default async function PetsPage() {
   const session = await auth();
@@ -140,8 +141,7 @@ export default async function PetsPage() {
               >
                 <div className="w-14 h-14 rounded-2xl bg-[var(--light)] flex items-center justify-center text-2xl overflow-hidden flex-shrink-0">
                   {pet.avatarUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
+                    <UploadedImage
                       src={pet.avatarUrl}
                       alt={pet.name}
                       className="w-full h-full object-cover"
