@@ -6,12 +6,23 @@ const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
   // Override default ignores of eslint-config-next.
+  //
+  // Every pattern is `**/`-prefixed on purpose. An unanchored pattern only matches
+  // at the config root, so build output NESTED inside the repo was walked: `eslint`
+  // run in the main checkout linted `.claude/worktrees/*/.next/**` — generated,
+  // minified code — and reported 18 unparseable files plus 2 `no-explicit-any`
+  // errors that exist in no source file. The same run inside a worktree was clean,
+  // which is how a ghost failure survives: whether the repo was green depended on
+  // where you stood.
   globalIgnores([
     // Default ignores of eslint-config-next:
-    ".next/**",
-    "out/**",
-    "build/**",
-    "next-env.d.ts",
+    "**/.next/**",
+    "**/out/**",
+    "**/build/**",
+    "**/next-env.d.ts",
+    // Worktrees of this same repo live here. Their files are linted on their own
+    // branch, never as a copy of this one.
+    ".claude/**",
   ]),
   // eslint-config-next ships `settings.react.version: 'detect'`; detection calls
   // context.getFilename(), removed in ESLint 10, and throws on every file. Pin the version.
