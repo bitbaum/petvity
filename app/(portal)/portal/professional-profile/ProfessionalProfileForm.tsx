@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { CheckCircle, Save } from "lucide-react";
 import PageHeader from "@/components/portal/PageHeader";
+import { ContactFields, ProfileTextField } from "@/components/portal/ProfileFields";
 import { SITTER_SERVICES, GROOMER_SERVICES } from "@/lib/config/professionals";
 import { useTranslations } from "next-intl";
 
@@ -81,6 +82,11 @@ export default function ProfessionalProfileForm({ role, initialData }: Props) {
     phone: sitterInit?.phone ?? "",
     isAcceptingClients: sitterInit?.isAcceptingClients ?? true,
   });
+
+  /** Field components hand back a patch; each form applies it to its own state. */
+  const patchVet = (values: Partial<typeof vetForm>) => setVetForm((f) => ({ ...f, ...values }));
+  const patchSitter = (values: Partial<typeof sitterForm>) =>
+    setSitterForm((f) => ({ ...f, ...values }));
 
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -195,61 +201,28 @@ export default function ProfessionalProfileForm({ role, initialData }: Props) {
               {t("profPractice")}
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="sm:col-span-2">
-                <label className="form-label">{t("profSpecialty")}</label>
-                <input
-                  className="form-input"
-                  placeholder={t("profSpecialtyPlaceholder")}
-                  value={vetForm.specialty}
-                  onChange={(e) => setVetForm((f) => ({ ...f, specialty: e.target.value }))}
-                />
-              </div>
-              <div className="sm:col-span-2">
-                <label className="form-label">{t("profClinicName")}</label>
-                <input
-                  className="form-input"
-                  placeholder={t("profClinicNamePlaceholder")}
-                  value={vetForm.clinicName}
-                  onChange={(e) => setVetForm((f) => ({ ...f, clinicName: e.target.value }))}
-                />
-              </div>
-              <div className="sm:col-span-2">
-                <label className="form-label">{t("profClinicAddress")}</label>
-                <input
-                  className="form-input"
-                  placeholder={t("profClinicAddressPlaceholder")}
-                  value={vetForm.clinicAddress}
-                  onChange={(e) => setVetForm((f) => ({ ...f, clinicAddress: e.target.value }))}
-                />
-              </div>
-              <div>
-                <label className="form-label">{t("profCity")}</label>
-                <input
-                  className="form-input"
-                  placeholder={t("profCityPlaceholder")}
-                  value={vetForm.city}
-                  onChange={(e) => setVetForm((f) => ({ ...f, city: e.target.value }))}
-                />
-              </div>
-              <div>
-                <label className="form-label">{t("profCountry")}</label>
-                <input
-                  className="form-input"
-                  placeholder={t("profCountryPlaceholder")}
-                  maxLength={2}
-                  value={vetForm.country}
-                  onChange={(e) => setVetForm((f) => ({ ...f, country: e.target.value }))}
-                />
-              </div>
-              <div>
-                <label className="form-label">{t("profPhone")}</label>
-                <input
-                  className="form-input"
-                  placeholder={t("profPhonePlaceholder")}
-                  value={vetForm.phone}
-                  onChange={(e) => setVetForm((f) => ({ ...f, phone: e.target.value }))}
-                />
-              </div>
+              <ProfileTextField
+                className="sm:col-span-2"
+                label={t("profSpecialty")}
+                placeholder={t("profSpecialtyPlaceholder")}
+                value={vetForm.specialty}
+                onChange={(specialty) => patchVet({ specialty })}
+              />
+              <ProfileTextField
+                className="sm:col-span-2"
+                label={t("profClinicName")}
+                placeholder={t("profClinicNamePlaceholder")}
+                value={vetForm.clinicName}
+                onChange={(clinicName) => patchVet({ clinicName })}
+              />
+              <ProfileTextField
+                className="sm:col-span-2"
+                label={t("profClinicAddress")}
+                placeholder={t("profClinicAddressPlaceholder")}
+                value={vetForm.clinicAddress}
+                onChange={(clinicAddress) => patchVet({ clinicAddress })}
+              />
+              <ContactFields values={vetForm} onChange={patchVet} />
             </div>
           </div>
         )}
@@ -261,15 +234,12 @@ export default function ProfessionalProfileForm({ role, initialData }: Props) {
               {t("profServices")}
             </h2>
             {isGroomer && (
-              <div>
-                <label className="form-label">{t("profSalonName")}</label>
-                <input
-                  className="form-input"
-                  placeholder={t("profSalonNamePlaceholder")}
-                  value={sitterForm.salonName}
-                  onChange={(e) => setSitterForm((f) => ({ ...f, salonName: e.target.value }))}
-                />
-              </div>
+              <ProfileTextField
+                label={t("profSalonName")}
+                placeholder={t("profSalonNamePlaceholder")}
+                value={sitterForm.salonName}
+                onChange={(salonName) => patchSitter({ salonName })}
+              />
             )}
             <div>
               <label className="block text-sm font-medium text-[var(--ink2)] mb-2">
@@ -296,48 +266,16 @@ export default function ProfessionalProfileForm({ role, initialData }: Props) {
               </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="form-label">
-                  {isGroomer ? t("profPriceFrom") : t("profDailyRate")}
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  className="form-input"
-                  placeholder={t("profDailyRatePlaceholder")}
-                  value={sitterForm.pricePerDay}
-                  onChange={(e) => setSitterForm((f) => ({ ...f, pricePerDay: e.target.value }))}
-                />
-              </div>
-              <div>
-                <label className="form-label">{t("profCity")}</label>
-                <input
-                  className="form-input"
-                  placeholder={t("profCityPlaceholder")}
-                  value={sitterForm.city}
-                  onChange={(e) => setSitterForm((f) => ({ ...f, city: e.target.value }))}
-                />
-              </div>
-              <div>
-                <label className="form-label">{t("profCountry")}</label>
-                <input
-                  className="form-input"
-                  placeholder={t("profCountryPlaceholder")}
-                  maxLength={2}
-                  value={sitterForm.country}
-                  onChange={(e) => setSitterForm((f) => ({ ...f, country: e.target.value }))}
-                />
-              </div>
-              <div>
-                <label className="form-label">{t("profPhone")}</label>
-                <input
-                  className="form-input"
-                  placeholder={t("profPhonePlaceholder")}
-                  value={sitterForm.phone}
-                  onChange={(e) => setSitterForm((f) => ({ ...f, phone: e.target.value }))}
-                />
-              </div>
+              <ProfileTextField
+                type="number"
+                min="0"
+                step="0.01"
+                label={isGroomer ? t("profPriceFrom") : t("profDailyRate")}
+                placeholder={t("profDailyRatePlaceholder")}
+                value={sitterForm.pricePerDay}
+                onChange={(pricePerDay) => patchSitter({ pricePerDay })}
+              />
+              <ContactFields values={sitterForm} onChange={patchSitter} />
             </div>
           </div>
         )}
