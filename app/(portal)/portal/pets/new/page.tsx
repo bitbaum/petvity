@@ -2,16 +2,19 @@
 
 import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import {
-  SPECIES_OPTIONS,
-  SPECIES_CONFIG,
-  SEX_OPTIONS,
-  getBreedOptions,
-} from "@/lib/config/species";
-import type { SpeciesId, SexId } from "@/lib/config/species";
+import { SPECIES_OPTIONS, SPECIES_CONFIG } from "@/lib/config/species";
+import type { SpeciesId } from "@/lib/config/species";
 import { PawPrint } from "lucide-react";
 import { useTranslations } from "next-intl";
 import PageHeader from "@/components/portal/PageHeader";
+import {
+  PetBioField,
+  PetBirthDateAndSexFields,
+  PetBreedField,
+  PetNameField,
+  PetPublicToggle,
+  type PetFormValues,
+} from "@/components/portal/PetFormFields";
 
 function NewPetForm() {
   const t = useTranslations("portal");
@@ -23,17 +26,16 @@ function NewPetForm() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<PetFormValues>({
     name: "",
-    species: "" as SpeciesId | "",
+    species: "",
     breed: "",
     birthDate: "",
-    sex: "unknown" as SexId,
+    sex: "unknown",
     bio: "",
     isPublic: false,
   });
-
-  const breedOptions = form.species ? getBreedOptions(form.species as SpeciesId) : [];
+  const patch = (values: Partial<PetFormValues>) => setForm({ ...form, ...values });
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -91,13 +93,15 @@ function NewPetForm() {
       {error && <p className="alert-error mb-4">{error}</p>}
 
       <form onSubmit={handleSubmit} className="card p-6 flex flex-col gap-5">
-        {/* Species first — drives breed options */}
+        {/* Species first — it drives the breed options, and it is the one field
+            the edit page cannot offer, so it stays here rather than in the
+            shared set. */}
         <div>
           <label className="form-label">{t("petSpeciesLabel")} *</label>
           <select
             required
             value={form.species}
-            onChange={(e) => setForm({ ...form, species: e.target.value as SpeciesId, breed: "" })}
+            onChange={(e) => patch({ species: e.target.value as SpeciesId, breed: "" })}
             className="form-input"
           >
             <option value="">{t("newPetChooseType")}</option>
@@ -110,102 +114,21 @@ function NewPetForm() {
           </select>
         </div>
 
-        {/* Name */}
-        <div>
-          <label className="form-label">{t("petNameLabel")} *</label>
-          <input
-            type="text"
-            required
-            value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-            placeholder={t("newPetNamePlaceholder")}
-            className="form-input"
-          />
-        </div>
-
-        {/* Breed (conditional) */}
-        {breedOptions.length > 0 && (
-          <div>
-            <label className="form-label">{t("petBreedLabel")}</label>
-            <select
-              value={form.breed}
-              onChange={(e) => setForm({ ...form, breed: e.target.value })}
-              className="form-input"
-            >
-              <option value="">{t("petBreedUnknown")}</option>
-              {breedOptions.map((b) => (
-                <option key={b.value} value={b.value}>
-                  {b.label}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
-
-        {/* Birth date + sex */}
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="form-label">{t("petBirthDate")}</label>
-            <input
-              type="date"
-              value={form.birthDate}
-              onChange={(e) => setForm({ ...form, birthDate: e.target.value })}
-              className="form-input"
-            />
-          </div>
-          <div>
-            <label className="form-label">{t("petSex")}</label>
-            <select
-              value={form.sex}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  sex: e.target.value as SexId,
-                })
-              }
-              className="form-input"
-            >
-              {SEX_OPTIONS.map(({ value }) => (
-                <option key={value} value={value}>
-                  {tPub(`sex_${value}` as Parameters<typeof tPub>[0])}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {/* Bio */}
-        <div>
-          <label className="form-label">
-            {t("petBioLabel")}{" "}
-            <span className="text-[var(--faint)] font-normal">{t("listOptional")}</span>
-          </label>
-          <textarea
-            rows={3}
-            value={form.bio}
-            onChange={(e) => setForm({ ...form, bio: e.target.value })}
-            placeholder={t("newPetBioPlaceholder")}
-            className="form-input resize-none"
-          />
-        </div>
-
-        {/* Public toggle */}
-        <label className="flex items-start gap-3 cursor-pointer">
-          <div className="relative mt-0.5">
-            <input
-              type="checkbox"
-              checked={form.isPublic}
-              onChange={(e) => setForm({ ...form, isPublic: e.target.checked })}
-              className="sr-only peer"
-            />
-            <div className="w-10 h-5 bg-[var(--border)] rounded-full transition-colors peer-checked:bg-[var(--teal)]" />
-            <div className="absolute top-0.5 start-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-transform peer-checked:translate-x-5" />
-          </div>
-          <div>
-            <span className="text-sm font-medium text-[var(--ink2)]">{t("newPetPublicLabel")}</span>
-            <p className="text-xs text-[var(--muted)]">{t("newPetPublicDesc")}</p>
-          </div>
-        </label>
+        <PetNameField form={form} onChange={patch} placeholder={t("newPetNamePlaceholder")} />
+        <PetBreedField form={form} onChange={patch} />
+        <PetBirthDateAndSexFields form={form} onChange={patch} />
+        <PetBioField
+          form={form}
+          onChange={patch}
+          placeholder={t("newPetBioPlaceholder")}
+          markOptional
+        />
+        <PetPublicToggle
+          form={form}
+          onChange={patch}
+          label={t("newPetPublicLabel")}
+          description={t("newPetPublicDesc")}
+        />
 
         <div className="flex gap-3 pt-1">
           <button type="submit" disabled={saving} className="btn-primary disabled:opacity-60">

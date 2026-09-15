@@ -2,13 +2,22 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { SPECIES_CONFIG, SEX_OPTIONS, getBreedOptions } from "@/lib/config/species";
+import { SPECIES_CONFIG } from "@/lib/config/species";
 import { IMAGE_ACCEPT_ATTR } from "@/lib/config/uploads";
 import type { SpeciesId, SexId } from "@/lib/config/species";
 import Link from "next/link";
 import { Trash2, Camera, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import PageHeader from "@/components/portal/PageHeader";
+import { UploadedImage } from "@/components/ui/UploadedImage";
+import {
+  PetBioField,
+  PetBirthDateAndSexFields,
+  PetBreedField,
+  PetNameField,
+  PetPublicToggle,
+  type PetFormValues,
+} from "@/components/portal/PetFormFields";
 
 interface PetData {
   id: string;
@@ -22,6 +31,9 @@ interface PetData {
   handle: string | null;
   avatarUrl: string | null;
 }
+
+/** The shared pet fields plus the one this page owns: a public handle. */
+type EditPetForm = PetFormValues & { handle: string };
 
 export default function EditPetPage() {
   const t = useTranslations("portal");
@@ -39,16 +51,17 @@ export default function EditPetPage() {
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [avatarError, setAvatarError] = useState("");
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<EditPetForm>({
     name: "",
-    species: "" as SpeciesId | "",
+    species: "",
     breed: "",
     birthDate: "",
-    sex: "unknown" as SexId,
+    sex: "unknown",
     bio: "",
     isPublic: false,
     handle: "",
   });
+  const patch = (values: Partial<EditPetForm>) => setForm({ ...form, ...values });
 
   useEffect(() => {
     fetch(`/api/pets/${petId}`)
@@ -102,8 +115,6 @@ export default function EditPetPage() {
     // Reset input so the same file can be re-selected
     e.target.value = "";
   }
-
-  const breedOptions = form.species ? getBreedOptions(form.species as SpeciesId) : [];
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -182,8 +193,11 @@ export default function EditPetPage() {
         <div className="relative flex-shrink-0">
           <div className="w-20 h-20 rounded-2xl bg-[var(--off)] border border-[var(--border)] overflow-hidden flex items-center justify-center text-3xl">
             {avatarUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={avatarUrl} alt="Pet avatar" className="w-full h-full object-cover" />
+              <UploadedImage
+                src={avatarUrl}
+                alt="Pet avatar"
+                className="w-full h-full object-cover"
+              />
             ) : (
               (SPECIES_CONFIG[form.species as SpeciesId]?.emoji ?? "🐾")
             )}
@@ -218,17 +232,7 @@ export default function EditPetPage() {
       </div>
 
       <form onSubmit={handleSubmit} className="card p-6 flex flex-col gap-5">
-        {/* Name */}
-        <div>
-          <label className="form-label">{t("petNameLabel")} *</label>
-          <input
-            type="text"
-            required
-            value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-            className="form-input"
-          />
-        </div>
+        <PetNameField form={form} onChange={patch} />
 
         {/* Species (read-only after creation) */}
         <div>
@@ -241,68 +245,9 @@ export default function EditPetPage() {
           <p className="text-xs text-[var(--muted)] mt-1">{t("editPetSpeciesHint")}</p>
         </div>
 
-        {/* Breed */}
-        {breedOptions.length > 0 && (
-          <div>
-            <label className="form-label">{t("petBreedLabel")}</label>
-            <select
-              value={form.breed}
-              onChange={(e) => setForm({ ...form, breed: e.target.value })}
-              className="form-input"
-            >
-              <option value="">{t("petBreedUnknown")}</option>
-              {breedOptions.map((b) => (
-                <option key={b.value} value={b.value}>
-                  {b.label}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
-
-        {/* Birth date + sex */}
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="form-label">{t("petBirthDate")}</label>
-            <input
-              type="date"
-              value={form.birthDate}
-              onChange={(e) => setForm({ ...form, birthDate: e.target.value })}
-              className="form-input"
-            />
-          </div>
-          <div>
-            <label className="form-label">{t("petSex")}</label>
-            <select
-              value={form.sex}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  sex: e.target.value as SexId,
-                })
-              }
-              className="form-input"
-            >
-              {SEX_OPTIONS.map(({ value }) => (
-                <option key={value} value={value}>
-                  {tPub(`sex_${value}` as Parameters<typeof tPub>[0])}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {/* Bio */}
-        <div>
-          <label className="form-label">{t("petBioLabel")}</label>
-          <textarea
-            rows={3}
-            value={form.bio}
-            onChange={(e) => setForm({ ...form, bio: e.target.value })}
-            placeholder={t("editPetBioPlaceholder")}
-            className="form-input resize-none"
-          />
-        </div>
+        <PetBreedField form={form} onChange={patch} />
+        <PetBirthDateAndSexFields form={form} onChange={patch} />
+        <PetBioField form={form} onChange={patch} placeholder={t("editPetBioPlaceholder")} />
 
         {/* Public handle */}
         <div>
@@ -313,10 +258,7 @@ export default function EditPetPage() {
               type="text"
               value={form.handle}
               onChange={(e) =>
-                setForm({
-                  ...form,
-                  handle: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""),
-                })
+                patch({ handle: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "") })
               }
               placeholder="fluffy-the-dog"
               pattern="[a-z0-9-]+"
@@ -326,25 +268,12 @@ export default function EditPetPage() {
           <p className="text-xs text-[var(--muted)] mt-1">{t("editPetHandleHint")}</p>
         </div>
 
-        {/* Public toggle */}
-        <label className="flex items-start gap-3 cursor-pointer group">
-          <div className="relative mt-0.5">
-            <input
-              type="checkbox"
-              checked={form.isPublic}
-              onChange={(e) => setForm({ ...form, isPublic: e.target.checked })}
-              className="sr-only peer"
-            />
-            <div className="w-10 h-5 bg-[var(--border)] rounded-full transition-colors peer-checked:bg-[var(--teal)]" />
-            <div className="absolute top-0.5 start-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-transform peer-checked:translate-x-5" />
-          </div>
-          <div>
-            <span className="text-sm font-medium text-[var(--ink2)]">
-              {t("editPetPublicLabel")}
-            </span>
-            <p className="text-xs text-[var(--muted)]">{t("editPetPublicDesc")}</p>
-          </div>
-        </label>
+        <PetPublicToggle
+          form={form}
+          onChange={patch}
+          label={t("editPetPublicLabel")}
+          description={t("editPetPublicDesc")}
+        />
 
         <div className="flex gap-3 pt-1">
           <button type="submit" disabled={saving} className="btn-primary disabled:opacity-60">
