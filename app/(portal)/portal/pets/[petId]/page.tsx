@@ -158,7 +158,11 @@ export default async function PetProfilePage({ params }: Params) {
               {/* Avatar */}
               <div className="w-20 h-20 lg:w-24 lg:h-24 rounded-2xl lg:rounded-3xl bg-white shadow-sm flex items-center justify-center text-4xl lg:text-5xl overflow-hidden flex-shrink-0 border border-[var(--border)]">
                 {pet.avatarUrl ? (
-                  <UploadedImage src={pet.avatarUrl} alt={pet.name} className="w-full h-full object-cover" />
+                  <UploadedImage
+                    src={pet.avatarUrl}
+                    alt={pet.name}
+                    className="w-full h-full object-cover"
+                  />
                 ) : (
                   (speciesDef?.emoji ?? "🐾")
                 )}
