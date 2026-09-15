@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Heart } from "lucide-react";
@@ -88,7 +88,7 @@ export default function ListForAdoptionPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
-  function loadPet() {
+  const loadPet = useCallback(() => {
     setLoading(true);
     setFetchError("");
     fetch(`/api/pets/${petId}`)
@@ -104,12 +104,11 @@ export default function ListForAdoptionPage() {
         setFetchError(t("loadFailed"));
         setLoading(false);
       });
-  }
+  }, [petId, t]);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     loadPet();
-  }, [petId]);
+  }, [loadPet]);
 
   function field<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((f) => ({ ...f, [key]: value }));

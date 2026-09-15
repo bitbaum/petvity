@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { Heart, MapPin, DollarSign } from "lucide-react";
 import { APPLICATION_STATUS_CONFIG } from "@/lib/config/adoptions";
@@ -35,7 +35,7 @@ export default function MyApplicationsPage() {
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState("");
 
-  function loadApplications() {
+  const loadApplications = useCallback(() => {
     setLoading(true);
     setFetchError("");
     fetch("/api/adoptions?applied=1")
@@ -51,12 +51,11 @@ export default function MyApplicationsPage() {
         setFetchError(t("loadFailed"));
         setLoading(false);
       });
-  }
+  }, [t]);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     loadApplications();
-  }, []);
+  }, [loadApplications]);
 
   return (
     <div>

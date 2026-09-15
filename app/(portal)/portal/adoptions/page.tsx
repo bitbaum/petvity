@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { Heart, ChevronDown, ChevronUp, CheckCircle, XCircle, Loader2, Mail } from "lucide-react";
 import { SPECIES_CONFIG } from "@/lib/config/species";
@@ -341,7 +341,7 @@ export default function AdoptionsPage() {
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState("");
 
-  function loadListings() {
+  const loadListings = useCallback(() => {
     setLoading(true);
     setFetchError("");
     // GET /api/adoptions?mine=1 — the server requiresSession and returns only user's listings.
@@ -358,12 +358,11 @@ export default function AdoptionsPage() {
         setFetchError(t("loadFailed"));
         setLoading(false);
       });
-  }
+  }, [t]);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     loadListings();
-  }, []);
+  }, [loadListings]);
 
   function handleStatusChange(id: string, status: AdoptionListing["status"]) {
     setListings((prev) => prev.map((l) => (l.id === id ? { ...l, status } : l)));

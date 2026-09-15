@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import {
   ShoppingCart,
@@ -270,7 +270,7 @@ export default function ShopPage() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
 
-  function loadProducts() {
+  const loadProducts = useCallback(() => {
     setLoading(true);
     setFetchError("");
     fetch("/api/products")
@@ -286,12 +286,11 @@ export default function ShopPage() {
         setFetchError(t("shopLoadFailed"));
         setLoading(false);
       });
-  }
+  }, [t]);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     loadProducts();
-  }, []);
+  }, [loadProducts]);
 
   const categories = ["all", ...Array.from(new Set(products.map((p) => p.category)))];
 

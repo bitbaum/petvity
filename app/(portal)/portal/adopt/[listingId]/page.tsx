@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -87,7 +87,7 @@ export default function ListingDetailPage() {
   const [error, setError] = useState("");
   const [form, setForm] = useState<FormState>({ message: "", experience: "", housingType: "" });
 
-  function loadListing() {
+  const loadListing = useCallback(() => {
     setLoading(true);
     setFetchError("");
     Promise.all([
@@ -120,12 +120,11 @@ export default function ListingDetailPage() {
         setFetchError(t("loadFailed"));
         setLoading(false);
       });
-  }
+  }, [listingId, t]);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     loadListing();
-  }, [listingId]);
+  }, [loadListing]);
 
   async function handleApply(e: React.FormEvent) {
     e.preventDefault();

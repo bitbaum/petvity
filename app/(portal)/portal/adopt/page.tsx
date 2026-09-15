@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { PawPrint, MapPin, Users, Search, Filter, ChevronRight, Sparkles } from "lucide-react";
 import { LISTING_TRAIT_CONFIG } from "@/lib/config/adoptions";
@@ -128,29 +128,31 @@ export default function AdoptPage() {
   const [species, setSpecies] = useState("");
   const [locationQ, setLocationQ] = useState("");
 
-  function loadListings(currentSpecies: string) {
-    setLoading(true);
-    setFetchError("");
-    const url = currentSpecies ? `/api/adoptions?species=${currentSpecies}` : "/api/adoptions";
-    fetch(url)
-      .then((r) => {
-        if (!r.ok) throw new Error();
-        return r.json();
-      })
-      .then(({ data }) => {
-        setListings(data ?? []);
-        setLoading(false);
-      })
-      .catch(() => {
-        setFetchError(t("loadFailed"));
-        setLoading(false);
-      });
-  }
+  const loadListings = useCallback(
+    (currentSpecies: string) => {
+      setLoading(true);
+      setFetchError("");
+      const url = currentSpecies ? `/api/adoptions?species=${currentSpecies}` : "/api/adoptions";
+      fetch(url)
+        .then((r) => {
+          if (!r.ok) throw new Error();
+          return r.json();
+        })
+        .then(({ data }) => {
+          setListings(data ?? []);
+          setLoading(false);
+        })
+        .catch(() => {
+          setFetchError(t("loadFailed"));
+          setLoading(false);
+        });
+    },
+    [t],
+  );
 
   useEffect(() => {
     loadListings(species);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [species]);
+  }, [species, loadListings]);
 
   const displayed = locationQ
     ? listings.filter((l) => l.location?.toLowerCase().includes(locationQ.toLowerCase()))

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useTransition } from "react";
+import { useState, useCallback, useEffect, useTransition } from "react";
 import { CalendarCheck, Clock, CheckCircle, XCircle, ChevronDown, Star, X } from "lucide-react";
 import { BOOKING_STATUS_CONFIG } from "@/lib/config/orders";
 import type { BookingStatusId } from "@/lib/config/orders";
@@ -63,7 +63,7 @@ export default function BookingsPage() {
   const [reviewTarget, setReviewTarget] = useState<BookingRow | null>(null);
   const [, startTransition] = useTransition();
 
-  function loadBookings() {
+  const loadBookings = useCallback(() => {
     setLoading(true);
     setFetchError("");
     fetch("/api/bookings")
@@ -79,12 +79,11 @@ export default function BookingsPage() {
         setFetchError(t("loadFailed"));
         setLoading(false);
       });
-  }
+  }, [t]);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     loadBookings();
-  }, []);
+  }, [loadBookings]);
 
   async function load() {
     const res = await fetch("/api/bookings");
