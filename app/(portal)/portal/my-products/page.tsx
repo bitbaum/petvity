@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { Store, Plus, Pencil, X, Eye, EyeOff, ShoppingBag } from "lucide-react";
 import { PRODUCT_CATEGORY_OPTIONS } from "@/lib/config/products";
@@ -10,54 +10,34 @@ import { IMAGE_MAX_MB } from "@/lib/config/uploads";
 import { formatPrice } from "@/lib/utils/format";
 import { useTranslations } from "next-intl";
 import PageHeader from "@/components/portal/PageHeader";
-
-/* ─── Types ──────────────────────────────────────────────────────────────── */
-
-interface Product {
-  id: string;
-  name: string;
-  description: string | null;
-  priceCents: number;
-  imageUrl: string | null;
-  category: string;
-  stock: number | null;
-  isActive: boolean;
-}
-
-interface FormState {
-  name: string;
-  description: string;
-  priceDollars: string;
-  imageUrl: string;
-  category: string;
-  stock: string;
-}
-
-const EMPTY_FORM: FormState = {
-  name: "",
-  description: "",
-  priceDollars: "",
-  imageUrl: "",
-  category: "other",
-  stock: "",
-};
+import { useProductEditor, type ProductRecord } from "@/hooks/use-product-editor";
 
 /* ─── Page ───────────────────────────────────────────────────────────────── */
 
 export default function MyProductsPage() {
   const t = useTranslations("portal");
   const tPub = useTranslations("public");
-  const [items, setItems] = useState<Product[]>([]);
+  const [items, setItems] = useState<ProductRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState("");
-  const [showForm, setShowForm] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState<FormState>(EMPTY_FORM);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
   const [mutationError, setMutationError] = useState("");
 
-  function loadItems() {
+  const editor = useProductEditor({
+    createUrl: "/api/products",
+    invalidPriceMessage: t("myProductsInvalidPrice"),
+    saveFailedMessage: t("myProductsSaveFailed"),
+    onSaved: (product, replacedId) =>
+      setItems((prev) =>
+        replacedId ? prev.map((p) => (p.id === replacedId ? product : p)) : [product, ...prev],
+      ),
+  });
+  const { showForm, editingId, form, field, saving, error, openAdd, openEdit, closeForm } = editor;
+
+  const loadFailed = t("loadFailed");
+  // Depending on the message STRING rather than on `t` keeps the dependency
+  // honest and stable by value, so the effect below runs on mount and on an
+  // explicit reload, never in a loop.
+  const loadItems = useCallback(() => {
     setLoading(true);
     setFetchError("");
     fetch("/api/products?mine=true")
@@ -70,91 +50,16 @@ export default function MyProductsPage() {
         setLoading(false);
       })
       .catch(() => {
-        setFetchError(t("loadFailed"));
+        setFetchError(loadFailed);
         setLoading(false);
       });
-  }
+  }, [loadFailed]);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     loadItems();
-  }, []);
+  }, [loadItems]);
 
-  function openAdd() {
-    setEditingId(null);
-    setForm(EMPTY_FORM);
-    setError("");
-    setShowForm(true);
-  }
-
-  function openEdit(p: Product) {
-    setEditingId(p.id);
-    setForm({
-      name: p.name,
-      description: p.description ?? "",
-      priceDollars: (p.priceCents / 100).toFixed(2),
-      imageUrl: p.imageUrl ?? "",
-      category: p.category,
-      stock: p.stock != null ? String(p.stock) : "",
-    });
-    setError("");
-    setShowForm(true);
-  }
-
-  function closeForm() {
-    setShowForm(false);
-    setEditingId(null);
-    setForm(EMPTY_FORM);
-    setError("");
-  }
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError("");
-    setSaving(true);
-
-    const priceCents = Math.round(parseFloat(form.priceDollars) * 100);
-    if (!priceCents || priceCents <= 0) {
-      setError(t("myProductsInvalidPrice"));
-      setSaving(false);
-      return;
-    }
-
-    const body = {
-      name: form.name.trim(),
-      description: form.description.trim() || null,
-      priceCents,
-      imageUrl: form.imageUrl.trim() || null,
-      category: form.category,
-      stock: form.stock !== "" ? parseInt(form.stock) : null,
-    };
-
-    const isEdit = editingId !== null;
-    const url = isEdit ? `/api/products/${editingId}` : "/api/products";
-    const method = isEdit ? "PATCH" : "POST";
-
-    const res = await fetch(url, {
-      method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    const data = await res.json();
-    setSaving(false);
-
-    if (!data.success) {
-      setError(data.error ?? t("myProductsSaveFailed"));
-      return;
-    }
-
-    if (isEdit) {
-      setItems((prev) => prev.map((p) => (p.id === editingId ? data.data : p)));
-    } else {
-      setItems((prev) => [data.data, ...prev]);
-    }
-    closeForm();
-  }
-
-  async function toggleActive(p: Product) {
+  async function toggleActive(p: ProductRecord) {
     setMutationError("");
     const res = await fetch(`/api/products/${p.id}`, {
       method: "PATCH",
@@ -241,7 +146,7 @@ export default function MyProductsPage() {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={editor.handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-[var(--ink2)] mb-1">
                   {t("myProductsNameLabel")} *
@@ -249,7 +154,7 @@ export default function MyProductsPage() {
                 <input
                   className="form-input"
                   value={form.name}
-                  onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                  onChange={(e) => field("name", e.target.value)}
                   placeholder={t("myProductsNamePlaceholder")}
                   required
                 />
@@ -262,7 +167,7 @@ export default function MyProductsPage() {
                 <textarea
                   className="form-input min-h-[80px]"
                   value={form.description}
-                  onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+                  onChange={(e) => field("description", e.target.value)}
                   placeholder={t("myProductsDescPlaceholder")}
                 />
               </div>
@@ -278,7 +183,7 @@ export default function MyProductsPage() {
                     min="0.01"
                     step="0.01"
                     value={form.priceDollars}
-                    onChange={(e) => setForm((f) => ({ ...f, priceDollars: e.target.value }))}
+                    onChange={(e) => field("priceDollars", e.target.value)}
                     placeholder="19.99"
                     required
                   />
@@ -292,7 +197,7 @@ export default function MyProductsPage() {
                     type="number"
                     min="0"
                     value={form.stock}
-                    onChange={(e) => setForm((f) => ({ ...f, stock: e.target.value }))}
+                    onChange={(e) => field("stock", e.target.value)}
                     placeholder={t("myProductsStockPlaceholder")}
                   />
                 </div>
@@ -305,7 +210,7 @@ export default function MyProductsPage() {
                 <select
                   className="form-input"
                   value={form.category}
-                  onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}
+                  onChange={(e) => field("category", e.target.value)}
                 >
                   {PRODUCT_CATEGORY_OPTIONS.map(({ value }) => (
                     <option key={value} value={value}>
@@ -317,7 +222,7 @@ export default function MyProductsPage() {
 
               <ProductImageField
                 value={form.imageUrl}
-                onChange={(url) => setForm((f) => ({ ...f, imageUrl: url }))}
+                onChange={(url) => field("imageUrl", url)}
                 category={form.category}
                 name={form.name}
                 labels={{
