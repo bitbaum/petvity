@@ -4,7 +4,8 @@ import { z } from "zod";
 import { getInstance } from "@/lib/db";
 import { orders } from "@/lib/db/schema";
 import { setOrderStatus } from "@/lib/domain/orders";
-import { rateLimit, clientKey } from "@/lib/utils/rate-limit";
+import { slidingWindow } from "limitkit";
+import { clientKey } from "@/lib/utils/rate-limit";
 
 const patchSchema = z.object({
   // Cancelling is the only thing a buyer may do to their own order, so this is
@@ -12,7 +13,7 @@ const patchSchema = z.object({
   status: z.literal("cancelled"),
 });
 
-const CANCEL_LIMIT = { limit: 10, windowMs: 60_000 };
+const cancels = slidingWindow({ limit: 10, windowMs: 60_000 });
 
 /**
  * PATCH /api/shop/order/[token] — a guest cancels their own pending order.
@@ -22,8 +23,8 @@ const CANCEL_LIMIT = { limit: 10, windowMs: 60_000 };
  * would have no way out and the stock would stay reserved forever.
  */
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ token: string }> }) {
-  const limit = rateLimit(`guest-cancel:${clientKey(req)}`, CANCEL_LIMIT);
-  if (!limit.ok) {
+  const limit = cancels.check(clientKey(req));
+  if (!limit.allowed) {
     return NextResponse.json(
       { success: false, error: "Too many attempts. Please wait a moment." },
       { status: 429, headers: { "Retry-After": String(limit.retryAfterSeconds) } },

@@ -3,10 +3,11 @@ import { eq } from "drizzle-orm";
 import { getInstance } from "@/lib/db";
 import { orders } from "@/lib/db/schema";
 import { startCheckoutForOrder, guestOrderPath, toLocale } from "@/lib/domain/orders";
-import { rateLimit, clientKey } from "@/lib/utils/rate-limit";
+import { slidingWindow } from "limitkit";
+import { clientKey } from "@/lib/utils/rate-limit";
 
 /** Opening a Stripe session costs an API call; nobody clicks "Pay" ten times a minute. */
-const PAY_LIMIT = { limit: 10, windowMs: 60_000 };
+const payAttempts = slidingWindow({ limit: 10, windowMs: 60_000 });
 
 /**
  * POST /api/shop/order/[token]/pay — resume payment for a guest order.
@@ -16,8 +17,8 @@ const PAY_LIMIT = { limit: 10, windowMs: 60_000 };
  * here — they have /api/orders/[orderId]/pay, which checks a real session.
  */
 export async function POST(req: NextRequest, { params }: { params: Promise<{ token: string }> }) {
-  const limit = rateLimit(`guest-pay:${clientKey(req)}`, PAY_LIMIT);
-  if (!limit.ok) {
+  const limit = payAttempts.check(clientKey(req));
+  if (!limit.allowed) {
     return NextResponse.json(
       { success: false, error: "Too many attempts. Please wait a moment." },
       { status: 429, headers: { "Retry-After": String(limit.retryAfterSeconds) } },

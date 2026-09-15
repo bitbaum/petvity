@@ -52,6 +52,7 @@ import QuickActions from "@/components/portal/QuickActions";
 import { formatPrice, formatIsoDate } from "@/lib/utils/format";
 import { BOOKING_STATUS_CONFIG, ORDER_STATUS_CONFIG } from "@/lib/config/orders";
 import type { BookingStatusId, OrderStatusId } from "@/lib/config/orders";
+import { UploadedImage } from "@/components/ui/UploadedImage";
 
 // Icon mapping stays component-side (React components are UI, not config)
 const TREND_ICONS: Record<TwinTrend, React.ComponentType<{ className?: string }>> = {
@@ -392,8 +393,7 @@ export default async function DashboardPage() {
                   <div className="flex items-start justify-between mb-3">
                     <div className="w-14 h-14 rounded-2xl bg-[var(--light)] flex items-center justify-center text-3xl overflow-hidden flex-shrink-0">
                       {pet.avatarUrl ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
+                        <UploadedImage
                           src={pet.avatarUrl}
                           alt={pet.name}
                           className="w-full h-full object-cover"

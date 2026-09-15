@@ -11,6 +11,7 @@ import { formatPetAgeShort, formatAdoptionFee } from "@/lib/utils/format";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { buildAlternates } from "@/lib/i18n/alternates";
+import { UploadedImage } from "@/components/ui/UploadedImage";
 
 export const revalidate = 30;
 
@@ -252,8 +253,7 @@ export default async function PublicAdoptPage({ params, searchParams }: Params) 
                     {/* Photo */}
                     <div className="aspect-[4/3] bg-[var(--light)] flex items-center justify-center text-5xl relative overflow-hidden">
                       {listing.pet.avatarUrl ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
+                        <UploadedImage
                           src={listing.pet.avatarUrl}
                           alt={listing.pet.name}
                           className="w-full h-full object-cover"

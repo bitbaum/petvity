@@ -20,6 +20,7 @@ import { LISTING_STATUS_CONFIG } from "@/lib/config/adoptions";
 import type { ListingStatusId } from "@/lib/config/adoptions";
 import { formatAdoptionFee, formatIsoDate } from "@/lib/utils/format";
 import PageHeader from "@/components/portal/PageHeader";
+import { UploadedImage } from "@/components/ui/UploadedImage";
 
 /* ─── Types ──────────────────────────────────────────────────────────────── */
 
@@ -102,8 +103,7 @@ function ListingRow({
         {/* Pet avatar */}
         <div className="w-10 h-10 rounded-lg bg-[var(--teal-light)] flex items-center justify-center flex-shrink-0 overflow-hidden text-xl">
           {listing.pet.avatarUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <UploadedImage
               src={listing.pet.avatarUrl}
               alt={listing.pet.name}
               className="w-full h-full object-cover"

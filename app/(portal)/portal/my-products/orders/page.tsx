@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import {
   ShoppingBag,
@@ -157,7 +157,7 @@ export default function SellerOrdersPage() {
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState("");
 
-  function loadOrders() {
+  const loadOrders = useCallback(() => {
     setLoading(true);
     setFetchError("");
     fetch("/api/orders/seller")
@@ -173,12 +173,11 @@ export default function SellerOrdersPage() {
         setFetchError(t("loadFailed"));
         setLoading(false);
       });
-  }
+  }, [t]);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     loadOrders();
-  }, []);
+  }, [loadOrders]);
 
   const pendingCount = orders.filter(
     (o) => o.status === "pending" || o.status === "confirmed",

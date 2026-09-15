@@ -1,9 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Globe, Phone, MapPin, Package, ToggleRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import PageHeader from "@/components/portal/PageHeader";
+import { ProfileTextField } from "@/components/portal/ProfileFields";
+import { ToggleSwitch } from "@/components/ui/ToggleSwitch";
 
 interface SellerProfile {
   id: string;
@@ -23,6 +26,7 @@ interface Props {
 
 export default function SellerProfileForm({ initialData, userName }: Props) {
   const t = useTranslations("portal");
+  const router = useRouter();
   const isNew = !initialData;
 
   const [form, setForm] = useState({
@@ -37,6 +41,7 @@ export default function SellerProfileForm({ initialData, userName }: Props) {
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
+  const patch = (values: Partial<typeof form>) => setForm((f) => ({ ...f, ...values }));
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -67,7 +72,12 @@ export default function SellerProfileForm({ initialData, userName }: Props) {
     } else {
       setSuccess(true);
       if (isNew) {
-        window.location.href = "/portal/seller-profile";
+        // The profile exists now, so the server component that renders this form
+        // has to fetch it again — the page switches from "become a seller" to
+        // "your seller profile". `router.refresh()` re-runs that render in place;
+        // assigning window.location.href reloaded the whole document to reach the
+        // URL we are already on.
+        router.refresh();
       }
     }
   }
@@ -96,17 +106,13 @@ export default function SellerProfileForm({ initialData, userName }: Props) {
 
       <form onSubmit={handleSubmit} className="card p-6 flex flex-col gap-5">
         {/* Store name */}
-        <div>
-          <label className="form-label">{t("sellerStoreNameLabel")}</label>
-          <input
-            type="text"
-            value={form.displayName}
-            onChange={(e) => setForm({ ...form, displayName: e.target.value })}
-            placeholder={t("sellerStoreNamePlaceholder")}
-            className="form-input"
-          />
-          <p className="text-xs text-[var(--muted)] mt-1">{t("sellerStoreNameHint")}</p>
-        </div>
+        <ProfileTextField
+          label={t("sellerStoreNameLabel")}
+          value={form.displayName}
+          onChange={(displayName) => patch({ displayName })}
+          placeholder={t("sellerStoreNamePlaceholder")}
+          hint={t("sellerStoreNameHint")}
+        />
 
         {/* Bio */}
         <div>
@@ -114,7 +120,7 @@ export default function SellerProfileForm({ initialData, userName }: Props) {
           <textarea
             rows={3}
             value={form.bio}
-            onChange={(e) => setForm({ ...form, bio: e.target.value })}
+            onChange={(e) => patch({ bio: e.target.value })}
             placeholder={t("sellerBioPlaceholder")}
             className="form-input resize-none"
           />
@@ -122,85 +128,67 @@ export default function SellerProfileForm({ initialData, userName }: Props) {
 
         {/* City + Country */}
         <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="form-label">
-              <MapPin className="w-3.5 h-3.5 inline me-1" />
-              {t("profCity")}
-            </label>
-            <input
-              type="text"
-              value={form.city}
-              onChange={(e) => setForm({ ...form, city: e.target.value })}
-              placeholder={t("profCityPlaceholder")}
-              className="form-input"
-            />
-          </div>
-          <div>
-            <label className="form-label">{t("profCountry")}</label>
-            <input
-              type="text"
-              value={form.country}
-              onChange={(e) =>
-                setForm({ ...form, country: e.target.value.toUpperCase().slice(0, 2) })
-              }
-              placeholder={t("profCountryPlaceholder")}
-              maxLength={2}
-              className="form-input"
-            />
-          </div>
+          <ProfileTextField
+            label={
+              <>
+                <MapPin className="w-3.5 h-3.5 inline me-1" />
+                {t("profCity")}
+              </>
+            }
+            value={form.city}
+            onChange={(city) => patch({ city })}
+            placeholder={t("profCityPlaceholder")}
+          />
+          <ProfileTextField
+            label={t("profCountry")}
+            value={form.country}
+            onChange={(country) => patch({ country: country.toUpperCase().slice(0, 2) })}
+            placeholder={t("profCountryPlaceholder")}
+            maxLength={2}
+          />
         </div>
 
         {/* Phone + Website */}
         <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="form-label">
-              <Phone className="w-3.5 h-3.5 inline me-1" />
-              {t("profPhone")}
-            </label>
-            <input
-              type="tel"
-              value={form.phone}
-              onChange={(e) => setForm({ ...form, phone: e.target.value })}
-              placeholder={t("profPhonePlaceholder")}
-              className="form-input"
-            />
-          </div>
-          <div>
-            <label className="form-label">
-              <Globe className="w-3.5 h-3.5 inline me-1" />
-              {t("sellerWebsiteLabel")}
-            </label>
-            <input
-              type="url"
-              value={form.website}
-              onChange={(e) => setForm({ ...form, website: e.target.value })}
-              placeholder={t("sellerWebsitePlaceholder")}
-              className="form-input"
-            />
-          </div>
+          <ProfileTextField
+            type="tel"
+            label={
+              <>
+                <Phone className="w-3.5 h-3.5 inline me-1" />
+                {t("profPhone")}
+              </>
+            }
+            value={form.phone}
+            onChange={(phone) => patch({ phone })}
+            placeholder={t("profPhonePlaceholder")}
+          />
+          <ProfileTextField
+            type="url"
+            label={
+              <>
+                <Globe className="w-3.5 h-3.5 inline me-1" />
+                {t("sellerWebsiteLabel")}
+              </>
+            }
+            value={form.website}
+            onChange={(website) => patch({ website })}
+            placeholder={t("sellerWebsitePlaceholder")}
+          />
         </div>
 
         {/* Active toggle (only shown after creation) */}
         {!isNew && (
-          <label className="flex items-start gap-3 cursor-pointer group">
-            <div className="relative mt-0.5">
-              <input
-                type="checkbox"
-                checked={form.isActive}
-                onChange={(e) => setForm({ ...form, isActive: e.target.checked })}
-                className="sr-only peer"
-              />
-              <div className="w-10 h-5 bg-[var(--border)] rounded-full transition-colors peer-checked:bg-[var(--teal)]" />
-              <div className="absolute top-0.5 start-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-transform peer-checked:translate-x-5" />
-            </div>
-            <div>
-              <span className="text-sm font-medium text-[var(--ink2)] flex items-center gap-1.5">
+          <ToggleSwitch
+            checked={form.isActive}
+            onChange={(isActive) => patch({ isActive })}
+            label={
+              <span className="flex items-center gap-1.5">
                 <ToggleRight className="w-3.5 h-3.5" />
                 {t("sellerActiveLabel")}
               </span>
-              <p className="text-xs text-[var(--muted)]">{t("sellerActiveHint")}</p>
-            </div>
-          </label>
+            }
+            description={t("sellerActiveHint")}
+          />
         )}
 
         <div className="pt-1">

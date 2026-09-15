@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { Heart, MapPin, DollarSign } from "lucide-react";
 import { APPLICATION_STATUS_CONFIG } from "@/lib/config/adoptions";
@@ -10,6 +10,7 @@ import type { SpeciesId } from "@/lib/config/species";
 import { formatDateShort, formatAdoptionFee } from "@/lib/utils/format";
 import { useTranslations } from "next-intl";
 import PageHeader from "@/components/portal/PageHeader";
+import { UploadedImage } from "@/components/ui/UploadedImage";
 
 interface MyApplication {
   applicationId: string;
@@ -35,7 +36,7 @@ export default function MyApplicationsPage() {
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState("");
 
-  function loadApplications() {
+  const loadApplications = useCallback(() => {
     setLoading(true);
     setFetchError("");
     fetch("/api/adoptions?applied=1")
@@ -51,12 +52,11 @@ export default function MyApplicationsPage() {
         setFetchError(t("loadFailed"));
         setLoading(false);
       });
-  }
+  }, [t]);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     loadApplications();
-  }, []);
+  }, [loadApplications]);
 
   return (
     <div>
@@ -107,8 +107,7 @@ export default function MyApplicationsPage() {
                   {/* Pet avatar */}
                   <div className="w-14 h-14 rounded-2xl bg-[var(--teal-light)] flex items-center justify-center text-2xl flex-shrink-0 overflow-hidden">
                     {app.petAvatarUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
+                      <UploadedImage
                         src={app.petAvatarUrl}
                         alt={app.petName}
                         className="w-full h-full object-cover"

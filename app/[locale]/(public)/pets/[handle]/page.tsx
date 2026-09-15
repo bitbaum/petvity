@@ -17,6 +17,7 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { buildAlternates } from "@/lib/i18n/alternates";
 import { translateSignalReason } from "@/lib/i18n/signal-reason";
+import { UploadedImage } from "@/components/ui/UploadedImage";
 
 /** Cache public pet profiles for 60 s (ISR stale-while-revalidate). */
 export const revalidate = 60;
@@ -166,8 +167,11 @@ export default async function PublicPetPage({ params }: Params) {
           <div className="bg-[var(--warm-dark)] h-28 flex items-end justify-center pb-0 relative">
             <div className="absolute bottom-0 translate-y-1/2 w-24 h-24 rounded-full bg-[var(--accent-light)] border-4 border-white flex items-center justify-center text-4xl overflow-hidden">
               {pet.avatarUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={pet.avatarUrl} alt={pet.name} className="w-full h-full object-cover" />
+                <UploadedImage
+                  src={pet.avatarUrl}
+                  alt={pet.name}
+                  className="w-full h-full object-cover"
+                />
               ) : (
                 (speciesDef?.emoji ?? "🐾")
               )}

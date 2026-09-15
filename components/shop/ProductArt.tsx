@@ -1,4 +1,5 @@
 import type { ProductCategoryId } from "@/lib/config/products";
+import { UploadedImage } from "@/components/ui/UploadedImage";
 
 /**
  * Product visual: the uploaded photo when one exists, otherwise a branded
@@ -105,8 +106,7 @@ const CATEGORY_ART: Record<ProductCategoryId, React.ReactNode> = {
 
 export function ProductArt({ imageUrl, alt, category, className }: Props) {
   if (imageUrl) {
-    // eslint-disable-next-line @next/next/no-img-element
-    return <img src={imageUrl} alt={alt} className={className} />;
+    return <UploadedImage src={imageUrl} alt={alt} className={className} />;
   }
   const art = CATEGORY_ART[category as ProductCategoryId] ?? CATEGORY_ART.other;
   return (

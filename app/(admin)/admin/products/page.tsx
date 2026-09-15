@@ -6,51 +6,28 @@ import { PRODUCT_CATEGORY_OPTIONS, productCategoryLabel } from "@/lib/config/pro
 import { ProductImageField } from "@/components/shop/ProductImageField";
 import { formatPrice } from "@/lib/utils/format";
 import PageHeader from "@/components/portal/PageHeader";
-
-/* ─── Types ──────────────────────────────────────────────────────────────── */
-
-interface Product {
-  id: string;
-  name: string;
-  description: string | null;
-  priceCents: number;
-  imageUrl: string | null;
-  category: string;
-  stock: number | null;
-  isActive: boolean;
-}
+import { useProductEditor, type ProductRecord } from "@/hooks/use-product-editor";
 
 // Sourced from lib/config/products — SSOT for category labels
 const CATEGORIES = PRODUCT_CATEGORY_OPTIONS;
 
-interface FormState {
-  name: string;
-  description: string;
-  priceDollars: string;
-  imageUrl: string;
-  category: string;
-  stock: string;
-}
-
-const EMPTY_FORM: FormState = {
-  name: "",
-  description: "",
-  priceDollars: "",
-  imageUrl: "",
-  category: "other",
-  stock: "",
-};
-
 /* ─── Page ───────────────────────────────────────────────────────────────── */
 
 export default function AdminProductsPage() {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<ProductRecord[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState<FormState>(EMPTY_FORM);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
+
+  // ?platform=true creates a platform product (sellerId=null), not a user listing
+  const editor = useProductEditor({
+    createUrl: "/api/products?platform=true",
+    invalidPriceMessage: "Enter a valid price.",
+    saveFailedMessage: "Failed to save.",
+    onSaved: (product, replacedId) =>
+      setProducts((prev) =>
+        replacedId ? prev.map((p) => (p.id === replacedId ? product : p)) : [product, ...prev],
+      ),
+  });
+  const { showForm, editingId, form, field, saving, error, openAdd, openEdit, closeForm } = editor;
 
   useEffect(() => {
     // Admin fetches all products including inactive
@@ -63,82 +40,7 @@ export default function AdminProductsPage() {
       .catch(() => setLoading(false));
   }, []);
 
-  function openAdd() {
-    setEditingId(null);
-    setForm(EMPTY_FORM);
-    setError("");
-    setShowForm(true);
-  }
-
-  function openEdit(p: Product) {
-    setEditingId(p.id);
-    setForm({
-      name: p.name,
-      description: p.description ?? "",
-      priceDollars: (p.priceCents / 100).toFixed(2),
-      imageUrl: p.imageUrl ?? "",
-      category: p.category,
-      stock: p.stock != null ? String(p.stock) : "",
-    });
-    setError("");
-    setShowForm(true);
-  }
-
-  function closeForm() {
-    setShowForm(false);
-    setEditingId(null);
-    setForm(EMPTY_FORM);
-    setError("");
-  }
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError("");
-    setSaving(true);
-
-    const priceCents = Math.round(parseFloat(form.priceDollars) * 100);
-    if (!priceCents || priceCents <= 0) {
-      setError("Enter a valid price.");
-      setSaving(false);
-      return;
-    }
-
-    const body = {
-      name: form.name.trim(),
-      description: form.description.trim() || null,
-      priceCents,
-      imageUrl: form.imageUrl.trim() || null,
-      category: form.category,
-      stock: form.stock !== "" ? parseInt(form.stock) : null,
-    };
-
-    const isEdit = editingId !== null;
-    // ?platform=true creates a platform product (sellerId=null), not a user listing
-    const url = isEdit ? `/api/products/${editingId}` : "/api/products?platform=true";
-    const method = isEdit ? "PATCH" : "POST";
-
-    const res = await fetch(url, {
-      method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    const data = await res.json();
-    setSaving(false);
-
-    if (!data.success) {
-      setError(data.error ?? "Failed to save.");
-      return;
-    }
-
-    if (isEdit) {
-      setProducts((prev) => prev.map((p) => (p.id === editingId ? data.data : p)));
-    } else {
-      setProducts((prev) => [data.data, ...prev]);
-    }
-    closeForm();
-  }
-
-  async function toggleActive(product: Product) {
+  async function toggleActive(product: ProductRecord) {
     const res = await fetch(`/api/products/${product.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -148,10 +50,6 @@ export default function AdminProductsPage() {
     if (data.success) {
       setProducts((prev) => prev.map((p) => (p.id === product.id ? data.data : p)));
     }
-  }
-
-  function field(key: keyof FormState, value: string) {
-    setForm((f) => ({ ...f, [key]: value }));
   }
 
   return (
@@ -188,7 +86,7 @@ export default function AdminProductsPage() {
 
           {error && <p className="alert-error mb-4">{error}</p>}
 
-          <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <form onSubmit={editor.handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="sm:col-span-2">
               <label className="form-label">
                 Name <span className="text-[var(--danger-text)]">*</span>

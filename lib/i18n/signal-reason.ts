@@ -1,7 +1,16 @@
 import type { SignalReasonData } from "@/lib/domain/pet-signal";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type TSignal = (key: string, values?: Record<string, any>) => string;
+/**
+ * Just enough of next-intl's `t` to build these sentences.
+ *
+ * It is written structurally rather than imported because this module is also
+ * called from a server component and from a client one, and because the key is
+ * composed at runtime (`metric_${id}`) — which the real, literal-keyed type
+ * rejects by design. The values a reason interpolates are counts, days,
+ * formatted measurements and nested translations: numbers and strings, so that
+ * is what this says. It used to say `any`, which asserted nothing at all.
+ */
+type TSignal = (key: string, values?: Record<string, string | number>) => string;
 
 export function translateSignalReason(data: SignalReasonData, tSignal: TSignal): string {
   const parts: string[] = [];

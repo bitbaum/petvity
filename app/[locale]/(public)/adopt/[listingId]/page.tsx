@@ -23,6 +23,7 @@ import { formatPetAge, formatAdoptionFee } from "@/lib/utils/format";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { buildAlternates } from "@/lib/i18n/alternates";
+import { UploadedImage } from "@/components/ui/UploadedImage";
 
 /** Cache adoption listing detail for 30 s — status changes propagate quickly. */
 export const revalidate = 30;
@@ -159,8 +160,7 @@ export default async function PublicListingDetailPage({ params }: Params) {
           {/* Photo */}
           <div className="aspect-video bg-[var(--teal-light)] flex items-center justify-center text-8xl">
             {row.pet.avatarUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
+              <UploadedImage
                 src={row.pet.avatarUrl}
                 alt={row.pet.name}
                 className="w-full h-full object-cover"

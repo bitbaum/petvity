@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import {
   ShoppingBag,
@@ -217,7 +217,7 @@ export default function OrdersPage() {
   const [fetchError, setFetchError] = useState("");
   const [cancelError, setCancelError] = useState("");
 
-  function loadOrders() {
+  const loadOrders = useCallback(() => {
     setLoading(true);
     setFetchError("");
     fetch("/api/orders")
@@ -234,12 +234,11 @@ export default function OrdersPage() {
         setFetchError(t("loadFailed"));
         setLoading(false);
       });
-  }
+  }, [t]);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     loadOrders();
-  }, []);
+  }, [loadOrders]);
 
   async function cancelOrder(orderId: string) {
     setCancelError("");
