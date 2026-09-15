@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { guestOrderCreateSchema, placeOrder, guestOrderUrl } from "@/lib/domain/orders";
-import { rateLimit, clientKey } from "@/lib/utils/rate-limit";
+import { slidingWindow } from "limitkit";
+import { clientKey } from "@/lib/utils/rate-limit";
 
-/** A buyer placing more than this many orders a minute is a script, not a shopper. */
-const GUEST_ORDER_LIMIT = { limit: 5, windowMs: 60_000 };
+/**
+ * A buyer placing more than this many orders a minute is a script, not a
+ * shopper. Its own limiter with its own counts, which is also why the key needs
+ * no `guest-checkout:` prefix any more.
+ */
+const guestOrders = slidingWindow({ limit: 5, windowMs: 60_000 });
 
 /**
  * POST /api/shop/checkout — buy without an account.
@@ -15,8 +20,8 @@ const GUEST_ORDER_LIMIT = { limit: 5, windowMs: 60_000 };
  * Because it reserves stock without a session, it is rate limited per client.
  */
 export async function POST(req: NextRequest) {
-  const limit = rateLimit(`guest-checkout:${clientKey(req)}`, GUEST_ORDER_LIMIT);
-  if (!limit.ok) {
+  const limit = guestOrders.check(clientKey(req));
+  if (!limit.allowed) {
     return NextResponse.json(
       { success: false, error: "Too many orders in a row. Please wait a moment and try again." },
       { status: 429, headers: { "Retry-After": String(limit.retryAfterSeconds) } },

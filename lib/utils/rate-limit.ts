@@ -1,62 +1,38 @@
+import { clientIp } from "limitkit";
+
 /**
- * A fixed-window rate limiter held in process memory.
+ * This app's rate-limiting POLICY. The mechanism is `limitkit`.
  *
- * Scope, stated plainly: the app runs as a single systemd service (one Node
- * process), so one map is the whole picture today. If it is ever run with more
- * than one worker, each worker gets its own allowance and the effective limit
- * multiplies — at that point this needs to move to Postgres or Redis. It is
- * deliberately not presented as a security boundary: it exists to stop a
- * trivial script from draining a seller's stock through the unauthenticated
- * checkout, not to stop a determined attacker with many IPs.
+ * What used to live here was a hand-rolled fixed-window limiter over a
+ * module-level `Map` — one of twelve near-identical copies the fleet was
+ * carrying (fleet/SHARED.md). The window arithmetic, the refusal shape and the
+ * client-IP dance are now the package's problem. What stays local is the only
+ * part that was ever ours: how many requests each route allows (declared at the
+ * route, next to the reason), and how many proxies sit in front of us.
+ *
+ * Scope, unchanged and still worth stating: the store is per-process. The app
+ * runs as a single systemd service, so one process is the whole picture today;
+ * run it with N workers and the effective limit multiplies by N. It exists to
+ * stop a trivial script from draining a seller's stock through the
+ * unauthenticated checkout, not to stop a determined attacker with many IPs.
  */
 
-type Window = { count: number; resetAt: number };
-
-const windows = new Map<string, Window>();
-
-/** Drop expired windows so the map cannot grow without bound. */
-function prune(now: number) {
-  for (const [key, w] of windows) {
-    if (w.resetAt <= now) windows.delete(key);
-  }
-}
-
-export type RateLimitResult = { ok: true } | { ok: false; retryAfterSeconds: number };
-
-export function rateLimit(
-  key: string,
-  opts: { limit: number; windowMs: number },
-  now: number = Date.now(),
-): RateLimitResult {
-  // Cheap amortised cleanup — the map only ever holds active windows.
-  if (windows.size > 1000) prune(now);
-
-  const existing = windows.get(key);
-  if (!existing || existing.resetAt <= now) {
-    windows.set(key, { count: 1, resetAt: now + opts.windowMs });
-    return { ok: true };
-  }
-
-  if (existing.count >= opts.limit) {
-    return { ok: false, retryAfterSeconds: Math.ceil((existing.resetAt - now) / 1000) };
-  }
-
-  existing.count += 1;
-  return { ok: true };
-}
-
-/** Test seam — the module-level map would otherwise leak between test cases. */
-export function __resetRateLimits() {
-  windows.clear();
-}
-
 /**
- * Best-effort client address. Behind Caddy the socket address is always
- * localhost, so the proxy header is the only signal; the first entry is the
- * original client. Spoofable — see the caveat at the top of this file.
+ * Best-effort client identity for keying a limiter.
+ *
+ * `trustedProxies: 1` is limitkit's default and the right value here: Caddy on
+ * the box is the single reverse proxy in front of Next, so the LAST entry of
+ * `X-Forwarded-For` is the one Caddy wrote and the only one a caller cannot
+ * forge. Said once, here, rather than at three call sites — it is a fact about
+ * our deployment, and it changes the day a CDN is put in front.
+ *
+ * The implementation this replaced read the FIRST entry — the same bug limitkit
+ * itself shipped with until v0.2.0, and the same one found in three sibling
+ * repos. A proxy APPENDS to the header, so the first entry is whatever the
+ * client sent. Any caller could vary `X-Forwarded-For` per request, mint a
+ * fresh bucket each time and never trip the limit at all: the guest checkout
+ * was effectively unlimited. A limiter that cannot be tripped is not a limiter.
  */
 export function clientKey(req: Request): string {
-  const forwarded = req.headers.get("x-forwarded-for");
-  if (forwarded) return forwarded.split(",")[0]!.trim();
-  return req.headers.get("x-real-ip") ?? "unknown";
+  return clientIp(req.headers);
 }
