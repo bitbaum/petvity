@@ -5,6 +5,7 @@ import { vetProfiles, sitterProfiles, groomerProfiles, users, reviews } from "@/
 import { APP, APP_URL } from "@/lib/config/app";
 import { BadgeCheck, MapPin, Phone, Star, Stethoscope, Home, Scissors } from "lucide-react";
 import Link from "next/link";
+import { PublicPageNav } from "@/components/sections/PublicPageNav";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { buildAlternates } from "@/lib/i18n/alternates";
@@ -192,14 +193,10 @@ export default async function PublicProPage({ params }: Params) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(proSchema) }}
       />
       {/* Nav */}
-      <nav className="bg-white border-b border-[var(--border)] px-6 h-14 flex items-center justify-between">
-        <Link href={`/${locale}`} className="font-bold text-[var(--warm-ink)] text-lg no-underline">
-          {APP.name}
-        </Link>
-        <Link href="/login" className="btn-editorial-sm">
-          {t("proBookOn", { app: APP.name })}
-        </Link>
-      </nav>
+      <PublicPageNav
+        locale={locale}
+        cta={{ href: "/login", label: t("proBookOn", { app: APP.name }) }}
+      />
 
       <div className="max-w-2xl mx-auto px-4 py-10 space-y-5">
         {/* Profile card */}

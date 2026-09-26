@@ -2,6 +2,7 @@ import { getInstance } from "@/lib/db";
 import { adoptionListings, pets } from "@/lib/db/schema";
 import { and, desc, eq, ilike } from "drizzle-orm";
 import Link from "next/link";
+import { PublicPageNav } from "@/components/sections/PublicPageNav";
 import { APP } from "@/lib/config/app";
 import { LISTING_TRAIT_CONFIG } from "@/lib/config/adoptions";
 import { SPECIES_CONFIG } from "@/lib/config/species";
@@ -101,26 +102,12 @@ export default async function PublicAdoptPage({ params, searchParams }: Params) 
   return (
     <div className="min-h-screen bg-[var(--off)]">
       {/* Nav */}
-      <nav className="bg-white border-b border-[var(--border)] px-6 h-14 flex items-center justify-between sticky top-0 z-10">
-        <Link
-          href={`/${locale}`}
-          className="font-bold text-[var(--warm-ink)] text-lg no-underline flex items-center gap-2"
-        >
-          <PawPrint className="w-5 h-5" />
-          {APP.name}
-        </Link>
-        <div className="flex items-center gap-3">
-          <Link
-            href="/login"
-            className="text-sm text-[var(--ink2)] hover:text-[var(--warm-ink)] no-underline transition-colors"
-          >
-            {t("signIn")}
-          </Link>
-          <Link href="/register" className="btn-editorial-sm">
-            {t("joinFree")}
-          </Link>
-        </div>
-      </nav>
+      <PublicPageNav
+        locale={locale}
+        sticky
+        signIn={{ href: "/login", label: t("signIn") }}
+        cta={{ href: "/register", label: t("joinFree") }}
+      />
 
       {/* Hero */}
       <div className="bg-white border-b border-[var(--border)]">

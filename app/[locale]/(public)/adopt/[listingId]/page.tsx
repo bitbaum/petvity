@@ -3,20 +3,11 @@ import { getInstance } from "@/lib/db";
 import { adoptionListings, pets } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import Link from "next/link";
+import { PublicPageNav } from "@/components/sections/PublicPageNav";
 import { APP, APP_URL } from "@/lib/config/app";
 import { SPECIES_CONFIG } from "@/lib/config/species";
 import type { SpeciesId } from "@/lib/config/species";
-import {
-  Heart,
-  MapPin,
-  DollarSign,
-  PawPrint,
-  Baby,
-  Dog,
-  Cat,
-  Star,
-  ChevronLeft,
-} from "lucide-react";
+import { Heart, MapPin, DollarSign, Baby, Dog, Cat, Star, ChevronLeft } from "lucide-react";
 import { LISTING_STATUS_CONFIG, LISTING_TRAIT_CONFIG } from "@/lib/config/adoptions";
 import type { ListingStatusId, ListingTraitKey } from "@/lib/config/adoptions";
 import { formatPetAge, formatAdoptionFee } from "@/lib/utils/format";
@@ -124,26 +115,12 @@ export default async function PublicListingDetailPage({ params }: Params) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(listingSchema) }}
       />
       {/* Nav */}
-      <nav className="bg-white border-b border-[var(--border)] px-6 h-14 flex items-center justify-between sticky top-0 z-10">
-        <Link
-          href={`/${locale}`}
-          className="font-bold text-[var(--teal)] text-lg no-underline flex items-center gap-2"
-        >
-          <PawPrint className="w-5 h-5" />
-          {APP.name}
-        </Link>
-        <div className="flex items-center gap-3">
-          <Link
-            href="/login"
-            className="text-sm text-[var(--ink2)] hover:text-[var(--teal)] no-underline transition-colors"
-          >
-            {t("signIn")}
-          </Link>
-          <Link href="/register" className="btn-primary text-sm py-2 px-4">
-            {t("joinFree")}
-          </Link>
-        </div>
-      </nav>
+      <PublicPageNav
+        locale={locale}
+        sticky
+        signIn={{ href: "/login", label: t("signIn") }}
+        cta={{ href: "/register", label: t("joinFree") }}
+      />
 
       <div className="max-w-2xl mx-auto px-4 py-8">
         {/* Back */}

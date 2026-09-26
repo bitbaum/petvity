@@ -2,17 +2,9 @@ import { getInstance } from "@/lib/db";
 import { vetProfiles, sitterProfiles, groomerProfiles, users, reviews } from "@/lib/db/schema";
 import { eq, and, ilike, avg, count, inArray, isNotNull, sql } from "drizzle-orm";
 import Link from "next/link";
+import { PublicPageNav } from "@/components/sections/PublicPageNav";
 import { APP, APP_URL } from "@/lib/config/app";
-import {
-  PawPrint,
-  Search,
-  Stethoscope,
-  Home,
-  Scissors,
-  MapPin,
-  Star,
-  BadgeCheck,
-} from "lucide-react";
+import { Search, Stethoscope, Home, Scissors, MapPin, Star, BadgeCheck } from "lucide-react";
 import { formatPrice } from "@/lib/utils/format";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
@@ -235,26 +227,12 @@ export default async function PublicDirectoryPage({ params, searchParams }: Para
         dangerouslySetInnerHTML={{ __html: JSON.stringify(listSchema) }}
       />
       {/* Nav */}
-      <nav className="bg-white border-b border-[var(--border)] px-6 h-14 flex items-center justify-between sticky top-0 z-10">
-        <Link
-          href={`/${locale}`}
-          className="font-bold text-[var(--warm-ink)] text-lg no-underline flex items-center gap-2"
-        >
-          <PawPrint className="w-5 h-5" />
-          {APP.name}
-        </Link>
-        <div className="flex items-center gap-3">
-          <Link
-            href="/login"
-            className="text-sm text-[var(--ink2)] hover:text-[var(--warm-ink)] no-underline transition-colors"
-          >
-            {t("signIn")}
-          </Link>
-          <Link href="/register" className="btn-editorial-sm">
-            {t("joinFree")}
-          </Link>
-        </div>
-      </nav>
+      <PublicPageNav
+        locale={locale}
+        sticky
+        signIn={{ href: "/login", label: t("signIn") }}
+        cta={{ href: "/register", label: t("joinFree") }}
+      />
 
       {/* Hero */}
       <div className="bg-white border-b border-[var(--border)]">
