@@ -13,6 +13,7 @@ import { countOverdueVaccinations } from "@/lib/config/vaccinations";
 import { computeDigitalTwin } from "@/lib/domain/digital-twin";
 import { formatDateShort } from "@/lib/utils/format";
 import Link from "next/link";
+import { PublicPageNav } from "@/components/sections/PublicPageNav";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { buildAlternates } from "@/lib/i18n/alternates";
@@ -151,14 +152,7 @@ export default async function PublicPetPage({ params }: Params) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(petSchema) }}
       />
       {/* Nav */}
-      <nav className="bg-white border-b border-[var(--border)] px-6 h-14 flex items-center justify-between">
-        <Link href={`/${locale}`} className="font-bold text-[var(--warm-ink)] text-lg no-underline">
-          {APP.name}
-        </Link>
-        <Link href="/register" className="btn-editorial-sm">
-          {t("trackYourPet")}
-        </Link>
-      </nav>
+      <PublicPageNav locale={locale} cta={{ href: "/register", label: t("trackYourPet") }} />
 
       {/* Profile */}
       <div className="max-w-xl mx-auto px-4 py-10">

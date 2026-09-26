@@ -469,6 +469,8 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  /* 44px: the nav CTA is a tap target (fleet nav contract rule 3). */
+  min-height: 44px;
   background: var(--champagne);
   color: var(--obsidian);
   border: 1px solid var(--champagne);

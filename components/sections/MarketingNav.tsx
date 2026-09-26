@@ -71,7 +71,7 @@ export default function MarketingNav() {
   }));
 
   const linkCls =
-    "px-3 py-2 rounded-lg text-sm font-medium text-[var(--platinum-dim)] hover:text-[var(--platinum)] hover:bg-white/[0.06] transition-colors no-underline";
+    "inline-flex min-h-11 items-center px-3 rounded-lg text-sm font-medium text-[var(--platinum-dim)] hover:text-[var(--platinum)] hover:bg-white/[0.06] transition-colors no-underline";
 
   return (
     <header
@@ -95,7 +95,8 @@ export default function MarketingNav() {
           <div ref={platformRef} className="relative">
             <button
               onClick={() => setPlatformOpen((o) => !o)}
-              className="flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium text-[var(--platinum-dim)] hover:text-[var(--platinum)] hover:bg-white/[0.06] transition-colors"
+              aria-expanded={platformOpen}
+              className="flex min-h-11 items-center gap-1 px-3 rounded-lg text-sm font-medium text-[var(--platinum-dim)] hover:text-[var(--platinum)] hover:bg-white/[0.06] transition-colors"
             >
               {t("platform")}
               <ChevronDown
@@ -137,7 +138,7 @@ export default function MarketingNav() {
                         key={href}
                         href={href}
                         onClick={() => setPlatformOpen(false)}
-                        className="flex items-center gap-1.5 text-xs font-medium text-[var(--platinum-dim)] bg-white/[0.05] hover:bg-white/[0.09] hover:text-[var(--platinum)] px-3 py-1.5 rounded-full no-underline transition-colors"
+                        className="flex min-h-11 items-center gap-1.5 text-xs font-medium text-[var(--platinum-dim)] bg-white/[0.05] hover:bg-white/[0.09] hover:text-[var(--platinum)] px-3 rounded-full no-underline transition-colors"
                       >
                         <span>{emoji}</span>
                         {label}
@@ -154,7 +155,7 @@ export default function MarketingNav() {
           </Link>
           <Link
             href="/adopt"
-            className="px-3 py-2 rounded-lg text-sm font-medium text-[var(--danger-soft)] hover:bg-white/[0.06] transition-colors no-underline"
+            className="inline-flex min-h-11 items-center px-3 rounded-lg text-sm font-medium text-[var(--danger-soft)] hover:bg-white/[0.06] transition-colors no-underline"
           >
             ❤️ {t("adopt")}
           </Link>
@@ -173,7 +174,7 @@ export default function MarketingNav() {
             <>
               <Link
                 href="/login"
-                className="text-sm font-medium text-[var(--platinum-dim)] hover:text-[var(--platinum)] transition-colors no-underline"
+                className="inline-flex min-h-11 items-center text-sm font-medium text-[var(--platinum-dim)] hover:text-[var(--platinum)] transition-colors no-underline"
               >
                 {t("logIn")}
               </Link>
@@ -187,8 +188,9 @@ export default function MarketingNav() {
         {/* Mobile hamburger */}
         <button
           onClick={() => setMenuOpen((o) => !o)}
-          className="md:hidden p-2 rounded-lg text-[var(--platinum)] hover:bg-white/[0.06] transition-colors"
+          className="md:hidden inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-[var(--platinum)] hover:bg-white/[0.06] transition-colors"
           aria-label="Toggle menu"
+          aria-expanded={menuOpen}
         >
           {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
@@ -217,7 +219,7 @@ export default function MarketingNav() {
             <Link
               href="/pricing"
               onClick={() => setMenuOpen(false)}
-              className="px-3 py-2.5 text-sm font-medium text-[var(--platinum-dim)] no-underline"
+              className="flex min-h-11 items-center px-3 text-sm font-medium text-[var(--platinum-dim)] no-underline"
             >
               {t("pricing")}
             </Link>
@@ -231,7 +233,7 @@ export default function MarketingNav() {
                     key={href}
                     href={href}
                     onClick={() => setMenuOpen(false)}
-                    className="flex items-center gap-1 text-sm font-medium text-[var(--platinum-dim)] bg-white/[0.05] px-3 py-1.5 rounded-full no-underline"
+                    className="flex min-h-11 items-center gap-1 text-sm font-medium text-[var(--platinum-dim)] bg-white/[0.05] px-3 rounded-full no-underline"
                   >
                     <span>{emoji}</span>
                     {label}
@@ -253,7 +255,7 @@ export default function MarketingNav() {
                   <Link
                     href="/login"
                     onClick={() => setMenuOpen(false)}
-                    className="px-3 py-2.5 text-sm font-medium text-[var(--platinum-dim)] hover:text-[var(--platinum)] no-underline"
+                    className="flex min-h-11 items-center px-3 text-sm font-medium text-[var(--platinum-dim)] hover:text-[var(--platinum)] no-underline"
                   >
                     {t("logIn")}
                   </Link>
