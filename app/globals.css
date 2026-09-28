@@ -376,6 +376,12 @@ body {
     transform 0.1s;
   white-space: nowrap;
 }
+/* Lets a long localized CTA label wrap on the narrowest phones instead of
+   pushing the page sideways (btn-editorial is nowrap by default). */
+.btn-editorial-wrap {
+  white-space: normal;
+  text-align: center;
+}
 .btn-editorial:hover {
   background: var(--champagne-bright);
   border-color: var(--champagne-bright);
