@@ -52,7 +52,9 @@
       "liveDemo": "جرّب العرض المباشر",
       "joinAsGroomer": "انضم كمزيّن",
       "findAPro": "اعثر على محترف",
-      "blog": "المدونة"
+      "blog": "المدونة",
+      "roadmap": "خارطة الطريق",
+      "changelog": "سجل التغييرات"
     },
     "bottom": {
       "rights": "جميع الحقوق محفوظة.",
@@ -1555,5 +1557,11 @@
     "ctaJoin": "ابدأ مجانًا",
     "ctaFind": "اعثر على محترف",
     "empty": "لا توجد مقالات بعد — المقال الأول في الطريق."
+  },
+  "development": {
+    "roadmapMetaTitle": "خارطة الطريق · {app}",
+    "roadmapMetaDesc": "ما الذي يبنيه {app} لاحقًا، بالترتيب الذي يُبنى به.",
+    "changelogMetaTitle": "سجل التغييرات · {app}",
+    "changelogMetaDesc": "ما الذي تغيّر لمن يستخدمون {app}، الأحدث أولًا."
   }
 }

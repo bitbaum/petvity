@@ -52,7 +52,9 @@
       "liveDemo": "试用在线演示",
       "joinAsGroomer": "成为美容师",
       "findAPro": "查找专业人士",
-      "blog": "博客"
+      "blog": "博客",
+      "roadmap": "路线图",
+      "changelog": "更新日志"
     },
     "bottom": {
       "rights": "版权所有。",
@@ -1555,5 +1557,11 @@
     "ctaJoin": "免费开始",
     "ctaFind": "查找专业人士",
     "empty": "还没有文章 — 第一篇即将发布。"
+  },
+  "development": {
+    "roadmapMetaTitle": "路线图 · {app}",
+    "roadmapMetaDesc": "{app} 接下来要做什么，按实际推进的顺序排列。",
+    "changelogMetaTitle": "更新日志 · {app}",
+    "changelogMetaDesc": "对 {app} 用户而言有什么变化，最新的在前。"
   }
 }

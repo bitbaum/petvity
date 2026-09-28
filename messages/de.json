@@ -52,7 +52,9 @@
       "liveDemo": "Live-Demo testen",
       "joinAsGroomer": "Als Groomer beitreten",
       "findAPro": "Profi finden",
-      "blog": "Blog"
+      "blog": "Blog",
+      "roadmap": "Roadmap",
+      "changelog": "Änderungsprotokoll"
     },
     "bottom": {
       "rights": "Alle Rechte vorbehalten.",
@@ -1555,5 +1557,11 @@
     "ctaJoin": "Kostenlos starten",
     "ctaFind": "Profi finden",
     "empty": "Noch keine Beiträge — der erste ist unterwegs."
+  },
+  "development": {
+    "roadmapMetaTitle": "Roadmap · {app}",
+    "roadmapMetaDesc": "Was {app} als Nächstes baut, in der Reihenfolge, in der es gebaut wird.",
+    "changelogMetaTitle": "Änderungsprotokoll · {app}",
+    "changelogMetaDesc": "Was sich für die Menschen geändert hat, die {app} nutzen – das Neueste zuerst."
   }
 }
