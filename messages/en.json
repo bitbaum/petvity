@@ -52,7 +52,9 @@
       "liveDemo": "Try the live demo",
       "joinAsGroomer": "Join as a groomer",
       "findAPro": "Find a professional",
-      "blog": "Blog"
+      "blog": "Blog",
+      "roadmap": "Roadmap",
+      "changelog": "Changelog"
     },
     "bottom": {
       "rights": "All rights reserved.",
@@ -1555,5 +1557,11 @@
     "ctaJoin": "Get started free",
     "ctaFind": "Find a professional",
     "empty": "No posts yet — the first one is on its way."
+  },
+  "development": {
+    "roadmapMetaTitle": "Roadmap · {app}",
+    "roadmapMetaDesc": "What {app} is building next, in the order it is being built.",
+    "changelogMetaTitle": "Changelog · {app}",
+    "changelogMetaDesc": "What changed for the people using {app}, newest first."
   }
 }

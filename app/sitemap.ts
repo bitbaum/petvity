@@ -30,6 +30,8 @@ const MARKETING_PATHS = [
   { path: "/species/reptile", changeFrequency: "monthly" as const, priority: 0.7 },
   { path: "/species/fish", changeFrequency: "monthly" as const, priority: 0.7 },
   { path: "/adopt", changeFrequency: "daily" as const, priority: 0.9 },
+  { path: "/roadmap", changeFrequency: "weekly" as const, priority: 0.5 },
+  { path: "/changelog", changeFrequency: "weekly" as const, priority: 0.5 },
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

@@ -52,7 +52,9 @@
       "liveDemo": "ライブデモを試す",
       "joinAsGroomer": "トリマーとして参加",
       "findAPro": "プロを探す",
-      "blog": "ブログ"
+      "blog": "ブログ",
+      "roadmap": "ロードマップ",
+      "changelog": "変更履歴"
     },
     "bottom": {
       "rights": "All rights reserved.",
@@ -1555,5 +1557,11 @@
     "ctaJoin": "無料で始める",
     "ctaFind": "プロを探す",
     "empty": "記事はまだありません。最初の記事を準備中です。"
+  },
+  "development": {
+    "roadmapMetaTitle": "ロードマップ · {app}",
+    "roadmapMetaDesc": "{app} が次に作るものを、作る順番で。",
+    "changelogMetaTitle": "変更履歴 · {app}",
+    "changelogMetaDesc": "{app} を使う人にとって何が変わったか、新しい順に。"
   }
 }

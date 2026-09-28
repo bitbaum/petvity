@@ -52,7 +52,9 @@
       "liveDemo": "Canlı demoyu dene",
       "joinAsGroomer": "Kuaför olarak katıl",
       "findAPro": "Profesyonel bul",
-      "blog": "Blog"
+      "blog": "Blog",
+      "roadmap": "Yol haritası",
+      "changelog": "Değişiklik günlüğü"
     },
     "bottom": {
       "rights": "Tüm hakları saklıdır.",
@@ -1555,5 +1557,11 @@
     "ctaJoin": "Ücretsiz başla",
     "ctaFind": "Profesyonel bul",
     "empty": "Henüz yazı yok — ilki çok yakında."
+  },
+  "development": {
+    "roadmapMetaTitle": "Yol haritası · {app}",
+    "roadmapMetaDesc": "{app} bundan sonra ne inşa ediyor, inşa edildiği sırayla.",
+    "changelogMetaTitle": "Değişiklik günlüğü · {app}",
+    "changelogMetaDesc": "{app} kullananlar için neler değişti, en yeniden başlayarak."
   }
 }

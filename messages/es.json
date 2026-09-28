@@ -52,7 +52,9 @@
       "liveDemo": "Probar la demo",
       "joinAsGroomer": "Únete como peluquero",
       "findAPro": "Encontrar profesional",
-      "blog": "Blog"
+      "blog": "Blog",
+      "roadmap": "Hoja de ruta",
+      "changelog": "Registro de cambios"
     },
     "bottom": {
       "rights": "Todos los derechos reservados.",
@@ -1555,5 +1557,11 @@
     "ctaJoin": "Empieza gratis",
     "ctaFind": "Encontrar un profesional",
     "empty": "Aún no hay publicaciones: la primera está en camino."
+  },
+  "development": {
+    "roadmapMetaTitle": "Hoja de ruta · {app}",
+    "roadmapMetaDesc": "Lo que {app} construye a continuación, en el orden en que se construye.",
+    "changelogMetaTitle": "Registro de cambios · {app}",
+    "changelogMetaDesc": "Lo que cambió para quienes usan {app}, lo más reciente primero."
   }
 }

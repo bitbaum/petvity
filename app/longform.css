@@ -6,8 +6,10 @@
  * properties on a wrapper class always win for descendants, in light AND
  * dark OS preference alike):
  *
- *   .pv-longform — the public blog reader on the obsidian marketing surface
- *                  (editorial-luxury layer: platinum text, champagne accent).
+ *   .pv-longform — the public blog reader AND the /roadmap + /changelog
+ *                  records (bip-kit's DevelopmentPage) on the obsidian
+ *                  marketing surface (editorial-luxury layer: platinum text,
+ *                  champagne accent).
  *   .pv-preview  — the admin editor's live preview on the light product
  *                  theme (ink text on off-white).
  *
@@ -63,4 +65,32 @@
   --bp-warn-bg: var(--warn-bg);
   --bp-danger: var(--danger-text);
   --bp-danger-bg: var(--danger-bg);
+}
+
+/* The public records (DevelopmentPage) inside the editorial scope: the page
+   title wears the display face like every other marketing headline, the
+   record title carries the champagne eyebrow treatment, and a done milestone
+   is marked in champagne rather than the neutral default. */
+.pv-longform .bp-development h1 {
+  font-family: var(--display-face);
+  font-weight: 200;
+  letter-spacing: -0.01em;
+  color: var(--platinum);
+}
+.pv-longform .bp-development-name {
+  font-family: var(--mono-face);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--champagne);
+}
+.pv-longform .bp-development h2 {
+  color: var(--platinum);
+}
+.pv-longform .bp-development-check {
+  color: var(--champagne);
+}
+.pv-longform .bp-development-records li[data-done] {
+  color: var(--platinum-dim);
 }

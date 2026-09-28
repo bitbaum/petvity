@@ -52,7 +52,9 @@
       "liveDemo": "Essayer la démo",
       "joinAsGroomer": "Devenir toiletteur",
       "findAPro": "Trouver un professionnel",
-      "blog": "Blog"
+      "blog": "Blog",
+      "roadmap": "Feuille de route",
+      "changelog": "Journal des modifications"
     },
     "bottom": {
       "rights": "Tous droits réservés.",
@@ -1555,5 +1557,11 @@
     "ctaJoin": "Commencer gratuitement",
     "ctaFind": "Trouver un professionnel",
     "empty": "Pas encore d'articles — le premier arrive bientôt."
+  },
+  "development": {
+    "roadmapMetaTitle": "Feuille de route · {app}",
+    "roadmapMetaDesc": "Ce que {app} construit ensuite, dans l'ordre où cela se construit.",
+    "changelogMetaTitle": "Journal des modifications · {app}",
+    "changelogMetaDesc": "Ce qui a changé pour les personnes qui utilisent {app}, du plus récent au plus ancien."
   }
 }
