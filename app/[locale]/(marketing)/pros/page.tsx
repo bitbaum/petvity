@@ -7,7 +7,6 @@ import {
   Star,
   CalendarDays,
   Shield,
-  Brain,
   Zap,
 } from "lucide-react";
 import type { Metadata } from "next";
@@ -31,10 +30,10 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   };
 }
 
-const VET_BENEFIT_ICONS = [Brain, Shield, Star, CalendarDays] as const;
+const VET_BENEFIT_ICONS = [Shield, Star, CalendarDays] as const;
 const SITTER_BENEFIT_ICONS = [Shield, Star, CalendarDays, Zap] as const;
 
-const VET_BENEFIT_KEYS = ["vb1", "vb3", "vb4", "vb5"] as const;
+const VET_BENEFIT_KEYS = ["vb3", "vb4", "vb5"] as const;
 const SITTER_BENEFIT_KEYS = ["sb3", "sb4", "sb5", "sb6"] as const;
 
 const VET_STEP_KEYS = ["vs1", "vs2", "vs3"] as const;
@@ -90,7 +89,7 @@ export default async function ProsPage({ params }: Params) {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6 mb-12 max-w-4xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-6 mb-12 max-w-5xl mx-auto">
             {VET_BENEFIT_KEYS.map((key, i) => {
               const Icon = VET_BENEFIT_ICONS[i];
               return (

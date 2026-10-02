@@ -93,6 +93,11 @@ export default function PrivacyPolicyPage() {
           <strong>OrangeCat</strong> — only if you sign in with OrangeCat; it confirms who you are
           and sends us your name, email address, profile picture, and account ID
         </li>
+        <li>
+          <strong>Loki</strong> — the feedback button on every page, loaded from loki.orangecat.ch;
+          only what you choose to send through it (your message, an optional contact address, any
+          screenshot you attach) and the address of the page you sent it from reaches Loki
+        </li>
       </ul>
 
       <h2>4. Cookies</h2>

@@ -43,8 +43,9 @@ export default function CookiePolicyPage() {
       <h3>Preferences</h3>
       <ul>
         <li>
-          <code>NEXT_LOCALE</code> — remembers the language of the pages you are reading, so the
-          site stays in that language. Cleared when you close your browser.
+          <code>NEXT_LOCALE</code> — remembers your language. When you open a page, it is set to
+          that page&apos;s language and cleared when you close your browser. When you pick a
+          language with the language switcher, it keeps that choice for one year.
         </li>
       </ul>
 
@@ -60,7 +61,7 @@ export default function CookiePolicyPage() {
         authentication cookies will sign you out; clearing the preference cookies will reset your
         language to the default. We don&apos;t set anything that requires a cookie banner under GDPR
         / ePrivacy because all cookies above are strictly necessary to sign you in or to keep the
-        site in the language you are reading.
+        site in your language.
       </p>
 
       <h2>Contact</h2>

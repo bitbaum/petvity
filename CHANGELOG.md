@@ -8,12 +8,12 @@ weight as features. Rendered at
 
 ### Added
 
-- **Sign in with OrangeCat.** One OrangeCat account (Google, GitHub or email) signs you in; email and password still work for existing accounts.
+- **Sign in with OrangeCat.** One OrangeCat account (Google, GitHub or email) signs you in; you can still sign up and sign in with an email and password.
 
 ### Fixed
 
 - **Mail to Petvity arrives.** The footer, legal pages and emails pointed at addresses on a domain Petvity does not own; they now point at cato@orangecat.ch.
-- **The marketing pages say only what the product does.** Plans that do not exist, a vet's access to client records, sitters logging health and a "coming soon" waitlist that led nowhere are gone, and the Arabic, Chinese, Japanese, Korean and Turkish pages now say what the English ones say.
+- **Marketing copy cut back to what the product does.** Removed: plans that do not exist, the claim that vets and sitters see a client's pet records (they see the pet's name on a booking), sitters logging health, unmeasured timings such as "in 30 seconds", and a "coming soon" waitlist that led nowhere. The Arabic, Chinese, Japanese, Korean and Turkish pages now say what the English ones say.
 
 ## 2026-09-28
 

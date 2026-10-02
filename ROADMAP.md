@@ -103,7 +103,7 @@ A storefront that sells without an account.
 ### Platform
 
 - [x] Nine languages, Arabic right-to-left
-- [x] Sign in with OrangeCat (Google, GitHub or email), with email and password kept for existing accounts
+- [x] Sign in with OrangeCat (Google, GitHub or email); signing up and signing in with an email and password still works too
 - [x] Live demo account that resets itself
 - [x] Blog published from the admin
 - [x] Self-hosted on Hetzner with automatic deploys
