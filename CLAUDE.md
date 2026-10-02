@@ -79,6 +79,9 @@ Production env lives in `.env.selfhost.local` on the box (sourced by the systemd
 ### NOT YET configured (needed for full functionality)
 | Variable | Where to get it | Impact if missing |
 |----------|----------------|-------------------|
+| `ORANGECAT_OAUTH_CLIENT_ID` | `petvity` — OrangeCat client registration | "Sign in with OrangeCat" absent; login/register fall back to the email + password form |
+| `ORANGECAT_OAUTH_CLIENT_SECRET` | OrangeCat client registration (redirect URI `https://petvity.orangecat.ch/api/auth/callback/orangecat`) | same as above |
+| `ORANGECAT_OAUTH_ISSUER` | optional, default `https://orangecat.ch` | — |
 | `GOOGLE_CLIENT_ID` | Google Cloud Console | Google OAuth login disabled (no button is rendered, so no broken path is exposed) |
 | `GOOGLE_CLIENT_SECRET` | Google Cloud Console | Google OAuth login disabled |
 | `STRIPE_SECRET_KEY` | Stripe dashboard → API keys | Shop checkout records orders without payment (pay-off-platform mode; the UI says "Place order", never "Pay") |
@@ -315,6 +318,7 @@ Algorithm:
 
 ## Auth & Role System
 
+- **Sign in with OrangeCat** (primary, `lib/auth/orangecat.ts`): OIDC, `client_secret_post` + PKCE + state. A user is keyed ONLY on `users.orangecat_sub` (the OrangeCat actor id) — **never linked by email** (OrangeCat's `email_verified` is untrustworthy; linking would be account takeover), and an OrangeCat login never earns `ADMIN_EMAILS` promotion. If the OrangeCat email is already taken, the new user gets a `@users.invalid` placeholder. Identity only — no OrangeCat token refresh.
 - **Credentials provider**: email/password with bcrypt (BCRYPT_SALT_ROUNDS=12)
 - **Google OAuth**: configured in NextAuth but needs env vars set (GOOGLE_CLIENT_ID/SECRET)
 - **Role resolution**: `ADMIN_EMAILS` env var → admin. All others → pet_owner. Vet/sitter set manually by admin (Phase 2).
