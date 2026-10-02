@@ -18,7 +18,7 @@ import {
   Lock,
 } from "lucide-react";
 import type { Metadata } from "next";
-import { APP } from "@/lib/config/app";
+import { APP, APP_URL } from "@/lib/config/app";
 import { getTranslations } from "next-intl/server";
 import { buildAlternates } from "@/lib/i18n/alternates";
 
@@ -38,6 +38,9 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   };
 }
 
+/** The host a public pet profile is shared on. */
+const PUBLIC_HOST = new URL(APP_URL).host;
+
 const PILLAR_META = [
   {
     icon: Activity,
@@ -55,7 +58,7 @@ const PILLAR_META = [
     icon: Zap,
     titleKey: "fp3Title" as const,
     descKey: "fp3Desc" as const,
-    bulletKeys: ["fp3B1", "fp3B2", "fp3B3", "fp3B4"] as const,
+    bulletKeys: ["fp3B1", "fp3B2", "fp3B3"] as const,
   },
   {
     icon: FileText,
@@ -157,7 +160,7 @@ export default async function FeaturesPage({ params }: Params) {
                         className="flex items-start gap-2 text-sm text-[var(--platinum-dim)]"
                       >
                         <CheckCircle className="w-4 h-4 text-[var(--champagne)] flex-shrink-0 mt-0.5" />
-                        {t(bk)}
+                        {t(bk, { host: PUBLIC_HOST })}
                       </li>
                     ))}
                   </ul>
