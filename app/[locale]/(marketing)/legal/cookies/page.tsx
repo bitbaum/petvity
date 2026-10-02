@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   description: `What cookies ${APP.name} uses and why.`,
 };
 
-const EFFECTIVE_DATE = "April 26, 2026";
+const EFFECTIVE_DATE = "October 2, 2026";
 
 export default function CookiePolicyPage() {
   return (
@@ -24,23 +24,27 @@ export default function CookiePolicyPage() {
       <h3>Authentication (strictly necessary)</h3>
       <ul>
         <li>
-          <code>__Secure-next-auth.session-token</code> — your signed-in session. HttpOnly, Secure,
+          <code>__Secure-authjs.session-token</code> — your signed-in session. HttpOnly, Secure,
           SameSite=Lax. Cleared on sign-out.
         </li>
         <li>
-          <code>__Host-next-auth.csrf-token</code> — CSRF protection for authentication endpoints.
+          <code>__Host-authjs.csrf-token</code> — CSRF protection for authentication endpoints.
         </li>
         <li>
-          <code>__Secure-next-auth.callback-url</code> — preserves your intended destination across
-          the login flow.
+          <code>__Secure-authjs.callback-url</code> — preserves your intended destination across the
+          login flow.
+        </li>
+        <li>
+          <code>__Secure-authjs.pkce.code_verifier</code>, <code>__Secure-authjs.state</code> — only
+          while you sign in with OrangeCat; they protect that sign-in and expire after 15 minutes.
         </li>
       </ul>
 
       <h3>Preferences</h3>
       <ul>
         <li>
-          <code>NEXT_LOCALE</code> — remembers your language choice for one year so you don&apos;t
-          have to reselect on each visit. Set by the language switcher.
+          <code>NEXT_LOCALE</code> — remembers the language of the pages you are reading, so the
+          site stays in that language. Cleared when you close your browser.
         </li>
       </ul>
 
@@ -55,13 +59,13 @@ export default function CookiePolicyPage() {
         You can clear cookies for {APP.name} at any time from your browser settings. Clearing the
         authentication cookies will sign you out; clearing the preference cookies will reset your
         language to the default. We don&apos;t set anything that requires a cookie banner under GDPR
-        / ePrivacy because all cookies above are either strictly-necessary or set only by your
-        explicit action (selecting a language).
+        / ePrivacy because all cookies above are strictly necessary to sign you in or to keep the
+        site in the language you are reading.
       </p>
 
       <h2>Contact</h2>
       <p>
-        Questions: <a href={`mailto:${APP.supportEmail}`}>{APP.supportEmail}</a>.
+        Questions: <a href={`mailto:${APP.email}`}>{APP.email}</a>.
       </p>
 
       <p>
