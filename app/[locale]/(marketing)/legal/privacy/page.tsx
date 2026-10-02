@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   description: `How ${APP.name} collects, uses, and protects your data.`,
 };
 
-const EFFECTIVE_DATE = "April 26, 2026";
+const EFFECTIVE_DATE = "October 2, 2026";
 
 export default function PrivacyPolicyPage() {
   return (
@@ -16,16 +16,20 @@ export default function PrivacyPolicyPage() {
       <p>
         This policy describes what data {APP.name} collects, why we collect it, and the rights you
         have over it. We aim to write it in plain language — if anything is unclear, write to{" "}
-        <a href={`mailto:${APP.supportEmail}`}>{APP.supportEmail}</a>.
+        <a href={`mailto:${APP.email}`}>{APP.email}</a>.
       </p>
 
       <h2>1. Data we collect</h2>
       <h3>Account</h3>
       <ul>
-        <li>Email address (required to log in)</li>
+        <li>Email address</li>
         <li>Display name (you set this; defaults to your email prefix)</li>
-        <li>Password — stored only as a bcrypt hash; we never see the plaintext</li>
-        <li>Role (pet owner, veterinarian, pet sitter, or admin)</li>
+        <li>
+          If you sign up with email: your password, stored only as a bcrypt hash; we never see the
+          plaintext
+        </li>
+        <li>If you sign in with OrangeCat: your OrangeCat account ID</li>
+        <li>Role (pet owner, veterinarian, pet sitter, groomer, or admin)</li>
         <li>Preferred language and email-preferences flags</li>
       </ul>
 
@@ -41,9 +45,12 @@ export default function PrivacyPolicyPage() {
 
       <h3>Activity</h3>
       <ul>
-        <li>Bookings you make with vets or sitters</li>
+        <li>Bookings you make with vets, sitters, or groomers</li>
         <li>Reviews you write</li>
-        <li>Orders you place and products you list in the marketplace</li>
+        <li>
+          Orders you place and products you list in the marketplace — for an order placed without an
+          account, the email and shipping address you enter at checkout
+        </li>
         <li>Adoption listings and applications you submit</li>
       </ul>
 
@@ -75,17 +82,21 @@ export default function PrivacyPolicyPage() {
       </p>
       <ul>
         <li>
-          <strong>Hetzner</strong> — application hosting (self-hosted server in Germany; pet avatars
-          and uploads are stored here on local disk)
-        </li>
-        <li>
-          <strong>Neon</strong> — managed PostgreSQL database (your data lives here)
+          <strong>Hetzner</strong> — our own server in Germany, which runs the application and the
+          PostgreSQL database that holds your data; pet avatars and uploads are stored here on local
+          disk
         </li>
         <li>
           <strong>Resend</strong> — transactional email delivery
         </li>
         <li>
-          <strong>Google</strong> — only if you sign in with Google OAuth
+          <strong>OrangeCat</strong> — only if you sign in with OrangeCat; it confirms who you are
+          and sends us your name, email address, profile picture, and account ID
+        </li>
+        <li>
+          <strong>Loki</strong> — the feedback button on every page, loaded from loki.orangecat.ch;
+          only what you choose to send through it (your message, an optional contact address, any
+          screenshot you attach) and the address of the page you sent it from reaches Loki
         </li>
       </ul>
 
@@ -136,9 +147,9 @@ export default function PrivacyPolicyPage() {
 
       <h2>7. Security</h2>
       <p>
-        Passwords are hashed with bcrypt. All traffic to {APP.name} is served over HTTPS. Database
-        connections use TLS. No system is perfectly secure — if we ever discover a breach affecting
-        your data, we will notify you without undue delay.
+        Passwords are hashed with bcrypt. All traffic to {APP.name} is served over HTTPS. The
+        database accepts connections only from the server it runs on. No system is perfectly secure
+        — if we ever discover a breach affecting your data, we will notify you without undue delay.
       </p>
 
       <h2>8. Changes</h2>
@@ -149,7 +160,7 @@ export default function PrivacyPolicyPage() {
 
       <h2>9. Contact</h2>
       <p>
-        Privacy questions: <a href={`mailto:${APP.supportEmail}`}>{APP.supportEmail}</a>.
+        Privacy questions: <a href={`mailto:${APP.email}`}>{APP.email}</a>.
       </p>
     </LegalPage>
   );

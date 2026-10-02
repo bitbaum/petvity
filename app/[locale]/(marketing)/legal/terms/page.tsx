@@ -105,7 +105,7 @@ export default function TermsOfServicePage() {
 
       <h2>11. Contact</h2>
       <p>
-        Questions about these terms: <a href={`mailto:${APP.supportEmail}`}>{APP.supportEmail}</a>.
+        Questions about these terms: <a href={`mailto:${APP.email}`}>{APP.email}</a>.
       </p>
 
       <p>

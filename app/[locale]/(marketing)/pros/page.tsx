@@ -7,9 +7,6 @@ import {
   Star,
   CalendarDays,
   Shield,
-  TrendingUp,
-  Users,
-  Brain,
   Zap,
 } from "lucide-react";
 import type { Metadata } from "next";
@@ -33,11 +30,11 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   };
 }
 
-const VET_BENEFIT_ICONS = [Brain, TrendingUp, Shield, Star, CalendarDays, Users] as const;
-const SITTER_BENEFIT_ICONS = [Heart, TrendingUp, Shield, Star, CalendarDays, Zap] as const;
+const VET_BENEFIT_ICONS = [Shield, Star, CalendarDays] as const;
+const SITTER_BENEFIT_ICONS = [Shield, Star, CalendarDays, Zap] as const;
 
-const VET_BENEFIT_KEYS = ["vb1", "vb2", "vb3", "vb4", "vb5", "vb6"] as const;
-const SITTER_BENEFIT_KEYS = ["sb1", "sb2", "sb3", "sb4", "sb5", "sb6"] as const;
+const VET_BENEFIT_KEYS = ["vb3", "vb4", "vb5"] as const;
+const SITTER_BENEFIT_KEYS = ["sb3", "sb4", "sb5", "sb6"] as const;
 
 const VET_STEP_KEYS = ["vs1", "vs2", "vs3"] as const;
 const SITTER_STEP_KEYS = ["ss1", "ss2", "ss3"] as const;
@@ -92,7 +89,7 @@ export default async function ProsPage({ params }: Params) {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+          <div className="grid md:grid-cols-3 gap-6 mb-12 max-w-5xl mx-auto">
             {VET_BENEFIT_KEYS.map((key, i) => {
               const Icon = VET_BENEFIT_ICONS[i];
               return (
@@ -149,7 +146,7 @@ export default async function ProsPage({ params }: Params) {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+          <div className="grid md:grid-cols-2 gap-6 mb-12 max-w-4xl mx-auto">
             {SITTER_BENEFIT_KEYS.map((key, i) => {
               const Icon = SITTER_BENEFIT_ICONS[i];
               return (
@@ -196,8 +193,8 @@ export default async function ProsPage({ params }: Params) {
       <section className="py-20 lux-section border-y border-[var(--hairline-soft)]">
         <div className="section-inner">
           <h2 className="ed-title text-center mb-10">{t("trustTitle")}</h2>
-          <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-            {(["trust1", "trust2", "trust3"] as const).map((key) => (
+          <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+            {(["trust1", "trust2"] as const).map((key) => (
               <div key={key} className="lux-card p-7 text-center">
                 <div className="ed-icon w-10 h-10 rounded-xl flex items-center justify-center mx-auto mb-4">
                   <CheckCircle className="w-5 h-5" />
