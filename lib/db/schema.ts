@@ -86,6 +86,14 @@ export const users = pgTable("users", {
   emailVerified: timestamp("email_verified", { mode: "date" }),
   image: text("image"),
   password: text("password"),
+  /**
+   * OrangeCat actor id (the OIDC `sub`) — the ONLY key a "Sign in with
+   * OrangeCat" login resolves on. Never matched by email: OrangeCat's
+   * email_verified cannot be trusted, so linking by email would hand an
+   * existing account to whoever typed its address. Null for users who have
+   * never signed in through OrangeCat.
+   */
+  orangecatSub: text("orangecat_sub").unique(),
   role: userRoleEnum("role").notNull().default("pet_owner"),
   /** Set when a vet or sitter is manually verified by admin (Phase 2). */
   verifiedAt: timestamp("verified_at", { mode: "date" }),
