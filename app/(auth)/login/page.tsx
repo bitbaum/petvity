@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { orangecatEnabled } from "@/lib/auth/orangecat";
+import { orangecatClient } from "@bitbaum/accountkit/orangecat";
 import { LoginForm } from "./LoginForm";
 
 // The OrangeCat button exists only when the box holds the client pair, which
@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 export default function LoginPage() {
   return (
     <Suspense>
-      <LoginForm orangecat={orangecatEnabled()} />
+      <LoginForm orangecat={orangecatClient() !== null} />
     </Suspense>
   );
 }
