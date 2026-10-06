@@ -8,6 +8,7 @@ import { passwordReset } from "@/lib/email/templates";
 import { APP, APP_URL } from "@/lib/config/app";
 import { isDemoEmail } from "@/lib/config/demo";
 import { PASSWORD_RESET_TOKEN_EXPIRY_MS } from "@/lib/config/auth";
+import { mayReceivePasswordReset } from "@bitbaum/accountkit/orangecat";
 
 export async function POST(req: NextRequest) {
   try {
@@ -42,7 +43,18 @@ export async function POST(req: NextRequest) {
 
     // Always respond with success to prevent email enumeration
     const user = await db.query.users.findFirst({ where: eq(users.email, normalised) });
-    if (!user) {
+    // A user "Sign in with OrangeCat" created has no password here, and its
+    // address came from OrangeCat unverified: a reset link would give whoever
+    // owns that address a password on the OrangeCat person's account. A
+    // placeholder address can receive nothing. Same generic answer.
+    if (
+      !user ||
+      !mayReceivePasswordReset({
+        email: user.email,
+        hasPassword: Boolean(user.password),
+        orangecatLinked: Boolean(user.orangecatSub),
+      })
+    ) {
       return NextResponse.json({ success: true });
     }
 
