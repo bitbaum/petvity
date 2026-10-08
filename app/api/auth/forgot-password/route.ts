@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          error: `Password reset emails are temporarily unavailable. Please contact ${APP.supportEmail}.`,
+          error: `Password reset emails are temporarily unavailable. Please contact ${APP.email}.`,
         },
         { status: 503 },
       );

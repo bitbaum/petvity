@@ -27,13 +27,6 @@ until the payment provider is keyed in production.
 
 ## Next
 
-### Sign in with Google
-
-One-tap sign-in for people who do not want another password.
-
-- [x] Provider configured in the auth layer
-- [ ] Credentials set in production and the button shown on the login page
-
 ### Care reminders you can act on
 
 Every reminder email leads to the one screen where the thing gets done.
@@ -110,6 +103,7 @@ A storefront that sells without an account.
 ### Platform
 
 - [x] Nine languages, Arabic right-to-left
+- [x] Sign in with OrangeCat (Google, GitHub or email); signing up and signing in with an email and password still works too
 - [x] Live demo account that resets itself
 - [x] Blog published from the admin
 - [x] Self-hosted on Hetzner with automatic deploys

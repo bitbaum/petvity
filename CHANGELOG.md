@@ -4,6 +4,17 @@ What changed for the people using Petvity, newest first. Fixes carry the same
 weight as features. Rendered at
 [petvity.orangecat.ch/en/changelog](https://petvity.orangecat.ch/en/changelog).
 
+## 2026-10-02
+
+### Added
+
+- **Sign in with OrangeCat.** One OrangeCat account (Google, GitHub or email) signs you in; you can still sign up and sign in with an email and password.
+
+### Fixed
+
+- **Mail to Petvity arrives.** The footer, legal pages and emails pointed at addresses on a domain Petvity does not own; they now point at cato@orangecat.ch.
+- **Marketing copy cut back to what the product does.** Removed: plans that do not exist, the claim that vets and sitters see a client's pet records (they see the pet's name on a booking), sitters logging health, unmeasured timings such as "in 30 seconds", and a "coming soon" waitlist that led nowhere. The Arabic, Chinese, Japanese, Korean and Turkish pages now say what the English ones say.
+
 ## 2026-09-28
 
 ### Added
@@ -37,7 +48,6 @@ weight as features. Rendered at
 ### Added
 
 - **Buy without an account.** Add to cart on the public shop, check out on one page with an email and address, and get a receipt by email.
-- **Health metrics that matter per species.** What you log for a fish is not what you log for a horse.
 
 ### Fixed
 
@@ -79,7 +89,7 @@ weight as features. Rendered at
 
 - **Grooming as a professional vertical**, alongside vets and sitters.
 - **Humane booking flow**, self-serve upgrade to a professional account, role-aware dashboard.
-- **Calendar conflict blocking** for bookings and Stripe payment for orders.
+- **Calendar conflict blocking** for bookings.
 - **Public professional directory, blog, and a six-item sidebar.**
 - **Branded category art**: no product renders as a placeholder box.
 

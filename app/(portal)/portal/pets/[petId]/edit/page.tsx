@@ -6,6 +6,7 @@ import { SPECIES_CONFIG } from "@/lib/config/species";
 import { IMAGE_ACCEPT_ATTR } from "@/lib/config/uploads";
 import type { SpeciesId, SexId } from "@/lib/config/species";
 import Link from "next/link";
+import { APP_URL } from "@/lib/config/app";
 import { Trash2, Camera, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import PageHeader from "@/components/portal/PageHeader";
@@ -18,6 +19,9 @@ import {
   PetPublicToggle,
   type PetFormValues,
 } from "@/components/portal/PetFormFields";
+
+/** What the owner will share: the live host, not a domain this project does not own. */
+const PUBLIC_PET_URL_PREFIX = `${new URL(APP_URL).host}/pets/`;
 
 interface PetData {
   id: string;
@@ -253,7 +257,7 @@ export default function EditPetPage() {
         <div>
           <label className="form-label">{t("editPetHandle")}</label>
           <div className="flex items-center gap-2">
-            <span className="text-sm text-[var(--muted)]">petvity.com/pets/</span>
+            <span className="text-sm text-[var(--muted)]">{PUBLIC_PET_URL_PREFIX}</span>
             <input
               type="text"
               value={form.handle}

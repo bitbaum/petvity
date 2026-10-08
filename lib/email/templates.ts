@@ -52,7 +52,7 @@ const base = (content: string, locale?: string | null, unsubscribeUrl?: string) 
     <div class="body"${rtlBodyStyle}>${content}</div>
     <div class="footer"${rtlBodyStyle}>
       <p>${APP.name} · <a href="${APP_URL}">${APP_URL.replace("https://", "")}</a></p>
-      <p>Questions? <a href="mailto:${APP.supportEmail}">${APP.supportEmail}</a></p>
+      <p>Questions? <a href="mailto:${APP.email}">${APP.email}</a></p>
       ${unsubscribeUrl ? `<p style="margin-top:12px;"><a href="${unsubscribeUrl}">${s.unsubscribe}</a></p>` : ""}
     </div>
   </div>
