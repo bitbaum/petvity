@@ -8,6 +8,7 @@ import type { MedicationStatusId } from "@/lib/config/medications";
 import { useHealthList } from "@/hooks/useHealthList";
 import { useTranslations } from "next-intl";
 import PageHeader from "@/components/portal/PageHeader";
+import { DateInput } from "@/components/ui/date-input";
 
 /* ── Icon map — React components stay in the UI layer, not in config ─────── */
 const STATUS_ICONS: Record<MedicationStatusId, React.ElementType> = {
@@ -254,7 +255,7 @@ export default function MedicationsPage() {
               <label className="form-label">
                 {t("medsStartDate")} <span className="text-[var(--danger-text)]">*</span>
               </label>
-              <input
+              <DateInput
                 type="date"
                 className="form-input"
                 required
@@ -268,7 +269,7 @@ export default function MedicationsPage() {
                 {t("medsEndDate")}{" "}
                 <span className="text-[var(--muted)] font-normal ms-1">{t("listOptional")}</span>
               </label>
-              <input
+              <DateInput
                 type="date"
                 className="form-input"
                 value={form.endDate}

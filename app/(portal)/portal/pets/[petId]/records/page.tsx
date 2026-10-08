@@ -23,6 +23,7 @@ import type { HealthRecordTypeId } from "@/lib/config/health-records";
 import { useHealthList } from "@/hooks/useHealthList";
 import { useTranslations } from "next-intl";
 import PageHeader from "@/components/portal/PageHeader";
+import { DateInput } from "@/components/ui/date-input";
 
 /* ── Icon map — React components stay in the UI layer, not in config ─────── */
 const RECORD_TYPE_ICONS: Record<HealthRecordTypeId, React.ElementType> = {
@@ -243,7 +244,7 @@ export default function HealthRecordsPage() {
               <label className="form-label">
                 {t("recordsDateLabel")} <span className="text-[var(--danger-text)]">*</span>
               </label>
-              <input
+              <DateInput
                 type="date"
                 className="form-input"
                 required
