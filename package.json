@@ -24,6 +24,7 @@
     "@auth/drizzle-adapter": "^1.11.3",
     "@bitbaum/accountkit": "github:bitbaum/accountkit#v0.2.1",
     "@bitbaum/mail-kit": "^0.1.1",
+    "@bitbaum/whenkit": "github:bitbaum/whenkit#v0.3.2",
     "@neondatabase/serverless": "^1.1.0",
     "@radix-ui/react-avatar": "^1.2.6",
     "@radix-ui/react-dialog": "^1.1.23",

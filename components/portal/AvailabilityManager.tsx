@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { CalendarOff, Plus, Trash2 } from "lucide-react";
 import { formatDateShort } from "@/lib/utils/format";
 import { useTranslations } from "next-intl";
+import { DateInput } from "@/components/ui/date-input";
 
 /**
  * A professional's unavailable date ranges. Bookings that overlap any of these
@@ -85,7 +86,7 @@ export default function AvailabilityManager() {
       <form onSubmit={addRange} className="flex flex-wrap items-end gap-3 mb-5">
         <div>
           <label className="form-label">{t("availabilityFrom")}</label>
-          <input
+          <DateInput
             type="date"
             className="form-input text-sm"
             value={startDate}
@@ -99,7 +100,7 @@ export default function AvailabilityManager() {
         </div>
         <div>
           <label className="form-label">{t("availabilityUntil")}</label>
-          <input
+          <DateInput
             type="date"
             className="form-input text-sm"
             value={endDate}

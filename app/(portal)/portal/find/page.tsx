@@ -19,6 +19,7 @@ import { formatPrice, formatDateShort } from "@/lib/utils/format";
 import { EmptyState } from "@/components/portal/PageState";
 import HubTabs from "@/components/portal/HubTabs";
 import PageHeader from "@/components/portal/PageHeader";
+import { DateInput } from "@/components/ui/date-input";
 
 /* ─── Types ──────────────────────────────────────────────────────────────── */
 
@@ -724,7 +725,7 @@ function BookingModal({
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="form-label">{t("findDropOff")} *</label>
-                  <input
+                  <DateInput
                     type="date"
                     className="form-input"
                     value={startDate}
@@ -738,7 +739,7 @@ function BookingModal({
                 </div>
                 <div>
                   <label className="form-label">{t("findPickUp")} *</label>
-                  <input
+                  <DateInput
                     type="date"
                     className="form-input"
                     value={endDate}
@@ -752,7 +753,7 @@ function BookingModal({
               <>
                 <div>
                   <label className="form-label">{t("findVisitDate")} *</label>
-                  <input
+                  <DateInput
                     type="date"
                     className="form-input"
                     value={startDate}
