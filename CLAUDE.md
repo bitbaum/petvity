@@ -1,6 +1,9 @@
 @~/.claude/CLAUDE.md
 @AGENTS.md
 
+Org rules are [bitbaum/fleet AGENTS.md](https://github.com/bitbaum/fleet/blob/main/AGENTS.md): packages by default (say why if you skip one), search through `@bitbaum/searchkit`, chat through `@bitbaum/chatkit`, shared names and the identity contract. Read that file. Do not restate it here.
+
+
 ## Mission
 
 Petvity gives pet owners a single place to monitor their pet's daily wellness, connect with local vets and sitters, and manage the full care journey — from health logs and vaccinations to marketplace orders and cross-border adoption. Success means any owner can check their pet's signal in seconds, understand why it changed, and take immediate action without leaving the platform.
