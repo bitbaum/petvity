@@ -119,19 +119,15 @@ export default async function HomePage({ params }: Params) {
                       <CheckCircle className="w-3 h-3" /> {t("mockHealthy")}
                     </span>
                   </div>
-                  <div className="p-4 grid grid-cols-3 gap-2.5">
+                  <div className="p-3 sm:p-4 grid grid-cols-3 gap-2 sm:gap-2.5">
                     {heroMetrics.map(({ label, value, sub }) => (
                       <div
                         key={label}
-                        className="bg-[var(--off)] rounded-xl p-2.5 text-center min-w-0"
+                        className="bg-[var(--off)] rounded-xl px-1 py-2.5 sm:p-2.5 text-center min-w-0"
                       >
-                        <p className="text-[10px] text-[var(--muted)] mb-1 uppercase tracking-wide truncate">
-                          {label}
-                        </p>
+                        <p className="text-sm text-[var(--muted)] mb-1 break-words">{label}</p>
                         <p className="text-sm font-bold text-[var(--ink)]">{value}</p>
-                        <p className="text-[10px] text-[var(--green-text)] mt-0.5 truncate">
-                          {sub}
-                        </p>
+                        <p className="text-sm text-[var(--green-text)] mt-0.5 break-words">{sub}</p>
                       </div>
                     ))}
                   </div>
