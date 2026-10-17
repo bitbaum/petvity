@@ -2,7 +2,7 @@
 
 Global pet care platform — owners manage multi-species pet profiles, track physical and
 emotional health KPIs, connect with vets and sitters, access a marketplace, and list pets
-for cross-border adoption. Built with Next.js 16 (App Router), TypeScript, Tailwind v4,
+for adoption. Built with Next.js 16 (App Router), TypeScript, Tailwind v4,
 Drizzle ORM, and self-hosted PostgreSQL 17.
 
 See [`CLAUDE.md`](./CLAUDE.md) for the full architecture, conventions, and runbook.

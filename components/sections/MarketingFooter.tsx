@@ -46,7 +46,7 @@ export default async function MarketingFooter() {
         { label: t("links.roadmap"), href: "/roadmap" },
         { label: t("links.changelog"), href: "/changelog" },
         { label: t("links.liveDemo"), href: "/demo" },
-        { label: t("links.contactUs"), href: `mailto:${APP.supportEmail}` },
+        { label: t("links.contactUs"), href: `mailto:${APP.email}` },
       ],
     },
     {

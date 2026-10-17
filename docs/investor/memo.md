@@ -153,7 +153,7 @@ Priorities, in order:
 4. **Pro/Clinic launch** — first recurring revenue.
 
 Terms and structure: open — contact
-[hello@petvity.com](mailto:hello@petvity.com).
+[cato@orangecat.ch](mailto:cato@orangecat.ch).
 
 ---
 
