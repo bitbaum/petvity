@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { PawPrint, Activity, Heart, Syringe, BarChart3, Globe } from "lucide-react";
 import { APP } from "@/lib/config/app";
+import { DocumentLanguage } from "@/components/i18n/DocumentLanguage";
+import { DEFAULT_LOCALE } from "@/lib/config/locales";
 
 const BRAND_FEATURES = [
   { icon: Activity, text: "Health & vitals tracking" },
@@ -13,6 +15,8 @@ const BRAND_FEATURES = [
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen flex">
+      {/* The sign-in pages are in English (they live outside [locale]). */}
+      <DocumentLanguage locale={DEFAULT_LOCALE} />
       {/* ── Brand panel — obsidian luxury, same surface as the marketing site ── */}
       <div className="hidden lg:flex w-[460px] flex-shrink-0 flex-col bg-[var(--obsidian)] text-[var(--platinum)] p-12 relative overflow-hidden">
         {/* Decorative circles */}
