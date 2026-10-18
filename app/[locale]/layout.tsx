@@ -1,8 +1,12 @@
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
-import { RTL_LOCALES } from "@/lib/config/locales";
-import { fontVariables } from "@/lib/fonts";
+import { DocumentLanguage } from "@/components/i18n/DocumentLanguage";
 
+/**
+ * No html element here: the root layout renders the only one. A second, nested one
+ * lost the page's language and fonts on the way into the portal — see
+ * components/i18n/DocumentLanguage.tsx.
+ */
 export default async function LocaleLayout({
   children,
   params,
@@ -12,13 +16,11 @@ export default async function LocaleLayout({
 }) {
   const { locale } = await params;
   const messages = await getMessages();
-  const dir = RTL_LOCALES.includes(locale as "ar") ? "rtl" : "ltr";
 
   return (
-    <html lang={locale} dir={dir} className={fontVariables}>
-      <body>
-        <NextIntlClientProvider messages={messages}>{children}</NextIntlClientProvider>
-      </body>
-    </html>
+    <NextIntlClientProvider messages={messages}>
+      <DocumentLanguage locale={locale} />
+      {children}
+    </NextIntlClientProvider>
   );
 }

@@ -3,6 +3,8 @@ import Script from "next/script";
 import { SessionProvider } from "next-auth/react";
 import { APP, APP_URL } from "@/lib/config/app";
 import { fontVariables } from "@/lib/fonts";
+import { getLocale } from "next-intl/server";
+import { LOCALE_CONFIG, type LocaleCode } from "@/lib/config/locales";
 import "./globals.css";
 
 const TITLE = `${APP.name} — The global platform for pet care`;
@@ -29,9 +31,16 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+/**
+ * The ONE <html>. Its language is the request's: the URL's on the localized
+ * site, the default elsewhere — each route group then keeps it right across
+ * client navigations (components/i18n/DocumentLanguage.tsx).
+ */
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const locale = await getLocale();
+  const dir = LOCALE_CONFIG[locale as LocaleCode]?.dir ?? "ltr";
   return (
-    <html lang="en" dir="ltr" className={fontVariables}>
+    <html lang={locale} dir={dir} className={fontVariables}>
       <body>
         <SessionProvider>{children}</SessionProvider>
 

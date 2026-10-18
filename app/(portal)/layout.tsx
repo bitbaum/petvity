@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
 import SidebarNav from "@/components/portal/SidebarNav";
 import { getPortalLocale } from "@/lib/i18n/portal-locale";
+import { DocumentLanguage } from "@/components/i18n/DocumentLanguage";
 import type { LocaleCode } from "@/lib/config/locales";
 import { getInstance } from "@/lib/db";
 import { sellerProfiles } from "@/lib/db/schema";
@@ -25,6 +26,7 @@ export default async function PortalLayout({ children }: { children: React.React
 
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
+      <DocumentLanguage locale={locale} />
       <div className="min-h-screen bg-[var(--off)]">
         <SidebarNav
           userName={session.user.name}

@@ -1,4 +1,6 @@
 import { auth } from "@/lib/auth";
+import { DocumentLanguage } from "@/components/i18n/DocumentLanguage";
+import { DEFAULT_LOCALE } from "@/lib/config/locales";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import {
@@ -19,6 +21,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   return (
     <div className="min-h-screen bg-[var(--off)] flex">
+      {/* Admin is in English (outside [locale]); see DocumentLanguage. */}
+      <DocumentLanguage locale={DEFAULT_LOCALE} />
       {/* Sidebar */}
       <aside className="w-52 flex-shrink-0 bg-[var(--ink)] flex flex-col fixed inset-y-0 start-0">
         <div className="h-14 flex items-center px-4 border-b border-white/10">
