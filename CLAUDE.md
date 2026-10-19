@@ -361,7 +361,7 @@ Algorithm:
 | Signal computation logic | `lib/domain/pet-signal.ts` | API route, cron |
 | Email templates | `lib/email/templates.ts` | API route (inline) |
 | Undeliverable recipient domains | `lib/config/email.ts` | Send call site |
-| Blog authoring markup rules | `lib/domain/blog-markup.ts` | Post page (inline parsing) |
+| Blog long-form parsing (bip-kit typed blocks) | `lib/domain/longform.ts` | Post page (inline parsing) |
 | Image upload limits + types | `lib/config/uploads.ts` | Upload route (inline consts) |
 | Product sort ids | `lib/config/products.ts` | Shop page |
 
