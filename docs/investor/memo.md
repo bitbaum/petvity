@@ -131,7 +131,7 @@ incumbent doing this — it is distribution, which is what capital is for.
 ## Why this team wins on cost and speed
 
 Petvity is built inside a studio production system
-([`docs/studio-production-system.md`](./../studio-production-system.md)):
+([`docs/archive/studio-production-system.md`](../archive/studio-production-system.md)):
 shared open-source packages (e.g. **commercekit**, the tested
 money/cart/inventory core that powers the shop), one design-token system, one
 CI/CD standard across a fleet of products. The measurable consequence:
