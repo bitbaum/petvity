@@ -21,72 +21,26 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   };
 }
 
-const PLAN_FEATURE_KEYS = {
-  plan1: [
-    "plan1F1",
-    "plan1F2",
-    "plan1F3",
-    "plan1F4",
-    "plan1F5",
-    "plan1F6",
-    "plan1F7",
-    "plan1F8",
-    "plan1F9",
-    "plan1F10",
-    "plan1F11",
-    "plan1F12",
-  ] as const,
-  plan2: [
-    "plan2F1",
-    "plan2F2",
-    "plan2F3",
-    "plan2F4",
-    "plan2F5",
-    "plan2F6",
-    "plan2F7",
-    "plan2F8",
-  ] as const,
-  plan3: ["plan3F1", "plan3F2", "plan3F3", "plan3F4", "plan3F5", "plan3F6", "plan3F7"] as const,
-} as const;
+const FREE_PLAN_FEATURE_KEYS = [
+  "plan1F1",
+  "plan1F2",
+  "plan1F3",
+  "plan1F4",
+  "plan1F5",
+  "plan1F6",
+  "plan1F7",
+  "plan1F8",
+  "plan1F9",
+  "plan1F10",
+  "plan1F11",
+  "plan1F12",
+] as const;
 
-const FAQ_KEYS = ["faq1", "faq2", "faq3", "faq4", "faq5", "faq6"] as const;
+const FAQ_KEYS = ["faq1", "faq2", "faq3", "faq5", "faq6"] as const;
 
 export default async function PricingPage({ params }: Params) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "pricing" });
-
-  const plans = [
-    {
-      nameKey: "plan1Name" as const,
-      priceKey: "plan1Price" as const,
-      periodKey: "plan1Period" as const,
-      descKey: "plan1Desc" as const,
-      ctaKey: "plan1Cta" as const,
-      href: "/register",
-      primary: false,
-      featureKeys: PLAN_FEATURE_KEYS.plan1,
-    },
-    {
-      nameKey: "plan2Name" as const,
-      priceKey: "plan2Price" as const,
-      periodKey: null,
-      descKey: "plan2Desc" as const,
-      ctaKey: "plan2Cta" as const,
-      href: "#",
-      primary: true,
-      featureKeys: PLAN_FEATURE_KEYS.plan2,
-    },
-    {
-      nameKey: "plan3Name" as const,
-      priceKey: "plan3Price" as const,
-      periodKey: null,
-      descKey: "plan3Desc" as const,
-      ctaKey: "plan3Cta" as const,
-      href: "#",
-      primary: false,
-      featureKeys: PLAN_FEATURE_KEYS.plan3,
-    },
-  ] as const;
 
   return (
     <div className="min-h-screen bg-[var(--obsidian)] text-[var(--platinum)] overflow-x-hidden">
@@ -104,59 +58,39 @@ export default async function PricingPage({ params }: Params) {
         </div>
       </section>
 
-      {/* Pricing cards */}
+      {/* Free plan */}
       <section className="py-16 lux-section-raised">
         <div className="section-inner">
-          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {plans.map(
-              ({ nameKey, priceKey, periodKey, descKey, ctaKey, href, primary, featureKeys }) => (
-                <div
-                  key={nameKey}
-                  className={`lux-card p-8 flex flex-col relative ${
-                    primary ? "border-[var(--champagne)] ring-1 ring-[var(--champagne)]" : ""
-                  }`}
+          <div className="lux-card p-8 flex flex-col max-w-md mx-auto">
+            <div className="mb-6">
+              <p className="text-xs font-bold uppercase tracking-widest text-[var(--mist-dark)] mb-2">
+                {t("plan1Name")}
+              </p>
+              <div className="flex items-baseline gap-1.5 mb-3">
+                <span className="font-display font-light text-6xl text-[var(--champagne)]">
+                  {t("plan1Price")}
+                </span>
+                <span className="text-sm text-[var(--mist-dark)]">/ {t("plan1Period")}</span>
+              </div>
+              <p className="text-sm text-[var(--mist-dark)] leading-relaxed">{t("plan1Desc")}</p>
+            </div>
+
+            <Link href="/register" className="w-full justify-center mb-7 btn-editorial">
+              {t("plan1Cta")}
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+
+            <ul className="space-y-2.5 flex-1">
+              {FREE_PLAN_FEATURE_KEYS.map((fk) => (
+                <li
+                  key={fk}
+                  className="flex items-start gap-2.5 text-sm text-[var(--platinum-dim)]"
                 >
-                  <div className="mb-6">
-                    <p className="text-xs font-bold uppercase tracking-widest text-[var(--mist-dark)] mb-2">
-                      {t(nameKey)}
-                    </p>
-                    <div className="flex items-baseline gap-1.5 mb-3">
-                      <span
-                        className={`font-display font-light ${t(priceKey) === "$0" ? "text-6xl text-[var(--champagne)]" : "text-2xl text-[var(--mist-dark)]"}`}
-                      >
-                        {t(priceKey)}
-                      </span>
-                      {periodKey && (
-                        <span className="text-sm text-[var(--mist-dark)]">/ {t(periodKey)}</span>
-                      )}
-                    </div>
-                    <p className="text-sm text-[var(--mist-dark)] leading-relaxed">{t(descKey)}</p>
-                  </div>
-
-                  <Link
-                    href={href}
-                    className={`w-full justify-center mb-7 ${
-                      primary ? "btn-editorial" : "btn-editorial-ghost"
-                    }`}
-                  >
-                    {t(ctaKey)}
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </Link>
-
-                  <ul className="space-y-2.5 flex-1">
-                    {featureKeys.map((fk) => (
-                      <li
-                        key={fk}
-                        className="flex items-start gap-2.5 text-sm text-[var(--platinum-dim)]"
-                      >
-                        <CheckCircle className="w-4 h-4 text-[var(--champagne)] flex-shrink-0 mt-0.5" />
-                        {t(fk)}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ),
-            )}
+                  <CheckCircle className="w-4 h-4 text-[var(--champagne)] flex-shrink-0 mt-0.5" />
+                  {t(fk)}
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </section>
