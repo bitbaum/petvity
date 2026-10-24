@@ -43,13 +43,13 @@
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.45.4",
     "limitkit": "^0.2.0",
-    "lucide-react": "^1.57.0",
-    "next": "16.4.0",
+    "lucide-react": "^1.61.0",
+    "next": "16.4.2",
     "next-auth": "5.0.0-beta.32",
     "next-intl": "^4.14.9",
     "pg": "^8.23.1",
-    "react": "19.3.0",
-    "react-dom": "19.3.0",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
     "recharts": "^3.10.1",
     "stripe": "^22.6.2",
     "tailwind-merge": "^3.7.0",
@@ -65,11 +65,11 @@
     "dotenv-cli": "^11.0.0",
     "drizzle-kit": "^0.31.11",
     "eslint": "^10",
-    "eslint-config-next": "16.4.0",
+    "eslint-config-next": "16.4.2",
     "prettier": "^3.9.10",
     "tailwindcss": "^4",
     "typescript": "^6",
-    "vitest": "^5.0.4"
+    "vitest": "^5.0.5"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
