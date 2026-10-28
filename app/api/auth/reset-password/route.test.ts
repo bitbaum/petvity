@@ -71,6 +71,8 @@ describe("POST /api/auth/reset-password", () => {
     expect(res.status).toBe(400);
     const body = await res.json();
     expect(body.error).toContain("invalid or has expired");
+    // The shared recovery form goes back to "request a link" on this code.
+    expect(body.code).toBe("INVALID_TOKEN");
   });
 
   it("returns 200 and resets password on valid token", async () => {
@@ -87,5 +89,6 @@ describe("POST /api/auth/reset-password", () => {
     db._queryFindFirst.mockResolvedValueOnce(undefined); // user not found
     const res = await POST(makeRequest({ token: VALID_TOKEN, password: "newpassword123" }));
     expect(res.status).toBe(404);
+    expect((await res.json()).code).toBe("INVALID_TOKEN");
   });
 });

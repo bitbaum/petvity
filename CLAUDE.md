@@ -247,6 +247,9 @@ lib/
      /api/products (public browse), /api/adoptions (public browse + self-guarded writes),
      /api/shop/* (guest checkout — MUST stay public, see below),
      /api/auth/forgot-password, /api/auth/reset-password
+     (their screens are the shared PasswordRecoveryForm from @bitbaum/accountkit/auth/react,
+      reached through lib/auth/recovery-client.ts; users, bcrypt passwords, roles and sessions
+      stay Petvity's own. A shared-form defect is fixed in bitbaum/accountkit, not here.)
 5. Everything else      → next-intl locale routing (marketing site)
 ```
 
