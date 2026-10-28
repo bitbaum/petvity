@@ -17,7 +17,6 @@ import {
   ArrowRight,
 } from "lucide-react";
 import Link from "next/link";
-import { PASSWORD_MIN_LENGTH } from "@/lib/config/auth";
 import { PasswordInput } from "@/components/portal/PasswordInput";
 import PageHeader from "@/components/portal/PageHeader";
 
@@ -106,10 +105,6 @@ export default function SettingsPage() {
     setPwMsg(null);
     if (newPw !== confirmPw) {
       setPwMsg({ ok: false, text: t("settingsPwNoMatch") });
-      return;
-    }
-    if (newPw.length < PASSWORD_MIN_LENGTH) {
-      setPwMsg({ ok: false, text: t("settingsPwTooShort", { min: PASSWORD_MIN_LENGTH }) });
       return;
     }
     setPwSaving(true);
@@ -309,8 +304,6 @@ export default function SettingsPage() {
                 onChange={setNewPw}
                 autoComplete="new-password"
                 required
-                minLength={PASSWORD_MIN_LENGTH}
-                placeholder={t("settingsNewPwPlaceholder", { min: PASSWORD_MIN_LENGTH })}
               />
             </div>
 

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { getAdminEmails } from "@/lib/config/app";
-import { PASSWORD_MIN_LENGTH } from "@/lib/config/auth";
+import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH } from "@bitbaum/accountkit/auth/password";
 import type { UserRole } from "@/lib/auth/types";
 
 export const loginSchema = z.object({
@@ -11,7 +11,7 @@ export const loginSchema = z.object({
 export const registerSchema = z.object({
   name: z.string().max(100).optional(),
   email: z.string().email(),
-  password: z.string().min(PASSWORD_MIN_LENGTH),
+  password: z.string().min(MIN_PASSWORD_LENGTH).max(MAX_PASSWORD_LENGTH),
   /**
    * Professionals (vets, sitters) declare their role at sign-up.
    * Admin email always overrides to "admin". Omitting defaults to "pet_owner".

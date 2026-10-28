@@ -3,21 +3,15 @@ import { and, eq, gte, like } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { getInstance } from "@/lib/db";
 import { users, verificationTokens } from "@/lib/db/schema";
-import { BCRYPT_SALT_ROUNDS, PASSWORD_MIN_LENGTH } from "@/lib/config/auth";
+import { passwordProblem } from "@bitbaum/accountkit/auth/password";
+import { BCRYPT_SALT_ROUNDS } from "@/lib/config/auth";
 
 export async function POST(req: NextRequest) {
   try {
     const { token, password } = await req.json();
 
-    if (!token || !password || typeof token !== "string" || typeof password !== "string") {
+    if (!token || typeof token !== "string" || passwordProblem(password)) {
       return NextResponse.json({ success: false, error: "Invalid request" }, { status: 400 });
-    }
-
-    if (password.length < PASSWORD_MIN_LENGTH) {
-      return NextResponse.json(
-        { success: false, error: `Password must be at least ${PASSWORD_MIN_LENGTH} characters` },
-        { status: 400 },
-      );
     }
 
     const db = getInstance();

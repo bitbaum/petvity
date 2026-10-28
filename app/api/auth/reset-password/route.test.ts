@@ -58,11 +58,9 @@ describe("POST /api/auth/reset-password", () => {
     expect(res.status).toBe(400);
   });
 
-  it("returns 400 when password is too short (< 8 chars)", async () => {
-    const res = await POST(makeRequest({ token: VALID_TOKEN, password: "short" }));
+  it("returns 400 when password is longer than the shared rule allows (128)", async () => {
+    const res = await POST(makeRequest({ token: VALID_TOKEN, password: "x".repeat(129) }));
     expect(res.status).toBe(400);
-    const body = await res.json();
-    expect(body.error).toContain("at least");
   });
 
   it("returns 400 when token is invalid or expired", async () => {

@@ -6,7 +6,8 @@ import { getInstance } from "@/lib/db";
 import { users } from "@/lib/db/schema";
 import { registerSchema, resolveRole } from "@/lib/domain/auth";
 import { enqueueWelcomeSequence } from "@/lib/domain/email-queue";
-import { BCRYPT_SALT_ROUNDS, PASSWORD_MIN_LENGTH } from "@/lib/config/auth";
+import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH } from "@bitbaum/accountkit/auth/password";
+import { BCRYPT_SALT_ROUNDS } from "@/lib/config/auth";
 import { sendEmail } from "@/lib/email";
 import { ownerWelcome } from "@/lib/email/templates";
 import { requireSession } from "@/lib/auth/guards";
@@ -17,7 +18,7 @@ const updateAccountSchema = z
   .object({
     name: z.string().min(1).max(100).optional(),
     currentPassword: z.string().optional(),
-    newPassword: z.string().min(PASSWORD_MIN_LENGTH).optional(),
+    newPassword: z.string().min(MIN_PASSWORD_LENGTH).max(MAX_PASSWORD_LENGTH).optional(),
     digestOptOut: z.boolean().optional(),
   })
   .refine((d) => !(d.newPassword && !d.currentPassword), {
