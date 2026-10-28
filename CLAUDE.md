@@ -325,6 +325,7 @@ Algorithm:
 
 - **Sign in with OrangeCat** (primary, `lib/auth/orangecat.ts`): OIDC, `client_secret_post` + PKCE + state. A user is keyed ONLY on `users.orangecat_sub` (the OrangeCat actor id) — **never linked by email** (OrangeCat's `email_verified` is untrustworthy; linking would be account takeover), and an OrangeCat login never earns `ADMIN_EMAILS` promotion. If the OrangeCat email is already taken, the new user gets a `@users.invalid` placeholder. Identity only — no OrangeCat token refresh.
 - **Credentials provider**: email/password with bcrypt (BCRYPT_SALT_ROUNDS=12)
+- **Password rule**: one rule for every bitbaum product, imported from `@bitbaum/accountkit/auth/password` (`MIN_PASSWORD_LENGTH`, `MAX_PASSWORD_LENGTH`, `passwordProblem`). Never add a local minimum, strength check or hint text.
 - **Google OAuth**: configured in NextAuth but needs env vars set (GOOGLE_CLIENT_ID/SECRET)
 - **Role resolution**: `ADMIN_EMAILS` env var → admin. All others → pet_owner. Vet/sitter set manually by admin (Phase 2).
 - **Guards pattern** (same as the `vitareba` repo — the Vita clinic portal):

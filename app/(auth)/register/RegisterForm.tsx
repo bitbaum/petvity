@@ -5,7 +5,6 @@ import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { PawPrint, Stethoscope, Heart, Scissors } from "lucide-react";
-import { PASSWORD_MIN_LENGTH } from "@/lib/config/auth";
 import { USER_ROLE_CONFIG } from "@/lib/config/users";
 import { PasswordInput } from "@/components/portal/PasswordInput";
 import { OrangecatButton } from "@/components/auth/OrangecatButton";
@@ -187,8 +186,6 @@ export function RegisterForm({ orangecat }: { orangecat: boolean }) {
               onChange={setPassword}
               autoComplete="new-password"
               required
-              minLength={PASSWORD_MIN_LENGTH}
-              placeholder={`At least ${PASSWORD_MIN_LENGTH} characters`}
             />
           </div>
 

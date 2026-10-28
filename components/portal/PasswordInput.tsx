@@ -8,7 +8,6 @@ type Props = {
   onChange: (value: string) => void;
   autoComplete?: string;
   placeholder?: string;
-  minLength?: number;
   required?: boolean;
 };
 
@@ -17,7 +16,6 @@ export function PasswordInput({
   onChange,
   autoComplete = "current-password",
   placeholder = "••••••••",
-  minLength,
   required,
 }: Props) {
   const [show, setShow] = useState(false);
@@ -28,7 +26,6 @@ export function PasswordInput({
         type={show ? "text" : "password"}
         autoComplete={autoComplete}
         required={required}
-        minLength={minLength}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className="form-input pe-11"
