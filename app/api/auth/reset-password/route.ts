@@ -36,6 +36,8 @@ export async function POST(req: NextRequest) {
         {
           success: false,
           error: "This reset link is invalid or has expired. Please request a new one.",
+          // The shared recovery form returns to "request a link" on this code.
+          code: "INVALID_TOKEN",
         },
         { status: 400 },
       );
@@ -45,7 +47,10 @@ export async function POST(req: NextRequest) {
 
     const user = await db.query.users.findFirst({ where: eq(users.email, email) });
     if (!user) {
-      return NextResponse.json({ success: false, error: "Account not found" }, { status: 404 });
+      return NextResponse.json(
+        { success: false, error: "Account not found", code: "INVALID_TOKEN" },
+        { status: 404 },
+      );
     }
 
     const hashed = await bcrypt.hash(password, BCRYPT_SALT_ROUNDS);
