@@ -101,14 +101,6 @@ export default async function AboutPage({ params }: Params) {
         </div>
       </section>
 
-      {/* Team */}
-      <section className="py-16 lux-section border-y border-[var(--hairline-soft)]">
-        <div className="section-inner max-w-3xl mx-auto text-center">
-          <h2 className="ed-title-sm mb-4">{t("teamTitle")}</h2>
-          <p className="text-[var(--mist-dark)] leading-relaxed text-sm">{t("teamBody")}</p>
-        </div>
-      </section>
-
       {/* CTA */}
       <section className="lux-section-deep relative overflow-hidden py-20">
         <div

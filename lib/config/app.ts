@@ -1,8 +1,9 @@
 export const APP = {
   name: "Petvity",
   tagline: "The global platform for pet care",
-  email: "hello@petvity.com",
-  supportEmail: "support@petvity.com",
+  /** The one public contact address. Only the orangecat.ch apex receives mail:
+   *  petvity.com is not ours, and <app>@fleetcrown.orangecat.ch is send-only. */
+  email: "cato@orangecat.ch",
   foundingYear: 2026,
 } as const;
 
