@@ -28,7 +28,10 @@ export default function PrivacyPolicyPage() {
           If you sign up with email: your password, stored only as a bcrypt hash; we never see the
           plaintext
         </li>
-        <li>If you sign in with OrangeCat: your OrangeCat account ID</li>
+        <li>
+          If you sign in with OrangeCat: your OrangeCat account ID, and the name and profile picture
+          your OrangeCat account carries
+        </li>
         <li>Role (pet owner, veterinarian, pet sitter, groomer, or admin)</li>
         <li>Preferred language and email-preferences flags</li>
       </ul>
