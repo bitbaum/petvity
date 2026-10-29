@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "@bitbaum/chartkit/styles.css";
 
 :root {
   /* Brand – deep forest teal */
@@ -116,11 +117,21 @@
   --secondary-shadow: 0 4px 12px rgb(236 72 153 / 0.25);
   --cta-shadow: 0 4px 20px rgb(0 0 0 / 0.15);
 
-  /* Tooltip / popover */
-  --tooltip-shadow: 0 2px 8px rgb(0 0 0 / 0.08);
-
   /* Hover border */
   --border-hover: #d4cdc5;
+
+  /* One chart renderer (@bitbaum/chartkit). Its defaults expect design-tokens'
+     HSL triplets, which Petvity does not use, so map them onto the palette once. */
+  --ck-ink: var(--ink);
+  --ck-ink-muted: var(--muted);
+  --ck-line: var(--border);
+  --ck-bg: var(--card);
+  --ck-accent: var(--teal);
+  --ck-up: var(--green);
+  --ck-down: var(--danger);
+  --ck-warning: var(--warn);
+  --ck-font: var(--font-sans, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+  --ck-mono: var(--mono-face);
 }
 
 /* ── Base ───────────────────────────────────────────────────────────────────── */

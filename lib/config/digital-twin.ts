@@ -1,3 +1,5 @@
+import type { MeterProps } from "@bitbaum/chartkit/react";
+
 /** SSOT: digital twin state colors, thresholds, and trend config.
  *  Labels are in messages/{locale}.json under the "twin" namespace. */
 
@@ -13,39 +15,37 @@ export const TWIN_TREND_CONFIG: Record<TwinTrend, { color: string }> = {
   insufficient_data: { color: "text-[var(--faint)]" },
 };
 
+/** The ChartKit `Meter` tone for each state: the score bars take the state's colour by token. */
+type TwinMeterTone = NonNullable<MeterProps["tone"]>;
+
 export const TWIN_STATE_CONFIG: Record<
   TwinStateId,
-  { bg: string; text: string; barColor: string; trackColor: string }
+  { bg: string; text: string; meterTone: TwinMeterTone }
 > = {
   thriving: {
     bg: "bg-[var(--green-bg)]",
     text: "text-[var(--green)]",
-    barColor: "bg-[var(--green)]",
-    trackColor: "bg-[var(--border)]",
+    meterTone: "positive",
   },
   content: {
     bg: "bg-[var(--teal-light)]",
     text: "text-[var(--teal)]",
-    barColor: "bg-[var(--teal)]",
-    trackColor: "bg-[var(--border)]",
+    meterTone: "accent",
   },
   attention: {
     bg: "bg-[var(--warn-bg)]",
     text: "text-[var(--warn)]",
-    barColor: "bg-[var(--warn)]",
-    trackColor: "bg-[var(--border)]",
+    meterTone: "warning",
   },
   struggling: {
     bg: "bg-[var(--danger-bg)]",
     text: "text-[var(--danger)]",
-    barColor: "bg-[var(--danger)]",
-    trackColor: "bg-[var(--border)]",
+    meterTone: "negative",
   },
   no_data: {
     bg: "bg-[var(--off)]",
     text: "text-[var(--muted)]",
-    barColor: "bg-[var(--faint)]",
-    trackColor: "bg-[var(--border)]",
+    meterTone: "neutral",
   },
 };
 

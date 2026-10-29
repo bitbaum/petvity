@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Meter } from "@bitbaum/chartkit/react";
 import {
   Zap,
   Smile,
@@ -121,7 +122,7 @@ export function DigitalTwinCard({ twin, petId, petName }: Props) {
           /* ── Active twin ──────────────────────────────────────── */
           <div className="space-y-4">
             {/* Score + summary */}
-            <div className="flex items-end justify-between gap-4">
+            <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-2">
               <div>
                 <p className={`text-xl font-bold ${cfg.text}`}>{tTwin(twin.id)}</p>
                 <p className="text-sm text-[var(--ink2)] mt-0.5">
@@ -138,15 +139,14 @@ export function DigitalTwinCard({ twin, petId, petName }: Props) {
                 <p className="text-[11px] uppercase tracking-wide text-[var(--muted)] mt-0.5">
                   {tTwin("emotionalScoreLabel")}
                 </p>
+                <Meter
+                  value={twin.scorePercent}
+                  max={100}
+                  label={tTwin("emotionalScoreLabel")}
+                  tone={cfg.meterTone}
+                  showValue={false}
+                />
               </div>
-            </div>
-
-            {/* Overall score bar */}
-            <div className="h-2 rounded-full bg-[var(--border)]">
-              <div
-                className={`h-2 rounded-full transition-all ${cfg.barColor}`}
-                style={{ width: `${twin.scorePercent}%` }}
-              />
             </div>
 
             {/* Individual metric rows */}
@@ -163,20 +163,21 @@ export function DigitalTwinCard({ twin, petId, petName }: Props) {
                     >[0],
                   );
                   return (
-                    <div key={m.id} className="space-y-1.5">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1.5">
-                          <Icon className="w-3.5 h-3.5 text-[var(--muted)]" />
-                          <span className="text-xs font-medium text-[var(--ink2)]">
-                            {metricLabel}
-                          </span>
-                        </div>
-                        <span className="text-xs text-[var(--muted)]">{scaleLabel}</span>
+                    <div key={m.id} className="flex items-center justify-between gap-3 min-w-0">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <Icon className="w-3.5 h-3.5 flex-shrink-0 text-[var(--muted)]" />
+                        <span className="text-xs font-medium text-[var(--ink2)]">
+                          {metricLabel}
+                        </span>
                       </div>
-                      <div className="h-1.5 rounded-full bg-[var(--border)]">
-                        <div
-                          className={`h-1.5 rounded-full ${cfg.barColor}`}
-                          style={{ width: `${m.fillPercent}%` }}
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="text-xs text-[var(--muted)] text-end">{scaleLabel}</span>
+                        <Meter
+                          value={m.fillPercent}
+                          max={100}
+                          label={metricLabel}
+                          tone={cfg.meterTone}
+                          showValue={false}
                         />
                       </div>
                     </div>
