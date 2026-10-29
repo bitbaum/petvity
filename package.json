@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.11.3",
-    "@bitbaum/accountkit": "^0.11.0",
+    "@bitbaum/accountkit": "^0.12.0",
     "@bitbaum/mail-kit": "^0.2.0",
     "@bitbaum/whenkit": "^0.3.3",
     "@neondatabase/serverless": "^1.2.0",
