@@ -1,20 +1,25 @@
 {
-  "exceptions": {
-    "health-trend-charts": {
+  "blocks": {
+    "charts": {
       "package": "@bitbaum/chartkit",
-      "status": "product-owned",
-      "files": ["components/portal/HealthTrendChart.tsx"],
-      "reason": "The pet health page draws 30-day daily trends (weight, temperature, heart rate, 1-5 emotional scores; HEALTH_CHART_WINDOW_DAYS = 30). ChartKit 0.6.0's LineChart labels its time axis only at month or year starts: timeTicks for 2026-10-01..2026-10-27 returns no tick, so a migrated chart rendered with no date on its x axis (dates only on hover and in the hidden table). Migrate when LineChart labels days on spans under two months."
-    },
-    "twin-score-meters": {
-      "package": "@bitbaum/chartkit",
-      "status": "product-owned",
-      "files": [
-        "components/portal/DigitalTwinCard.tsx",
-        "app/[locale]/(public)/pets/[handle]/page.tsx",
-        "app/(portal)/portal/dashboard/page.tsx"
-      ],
-      "reason": "The emotional-twin score bar and its per-metric bars are coloured by the twin state and show a translated scale word beside each bar, while the score is printed once, large, above them. ChartKit 0.6.0's Meter takes only value, max, label and href: it has no tone or colour input and always prints its own number beside the track, so it would drop the state colour and repeat the figure."
+      "bindings": [
+        {
+          "file": "components/portal/HealthTrendChart.tsx",
+          "symbols": ["LineChart"]
+        },
+        {
+          "file": "components/portal/DigitalTwinCard.tsx",
+          "symbols": ["Meter"]
+        },
+        {
+          "file": "app/[locale]/(public)/pets/[handle]/page.tsx",
+          "symbols": ["Meter"]
+        },
+        {
+          "file": "app/(portal)/portal/dashboard/page.tsx",
+          "symbols": ["Meter"]
+        }
+      ]
     }
   }
 }

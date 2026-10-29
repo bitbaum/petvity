@@ -49,7 +49,7 @@ public profiles. Plans and history: `ROADMAP.md`, `CHANGELOG.md`.
 - Stack: Next.js 16 (App Router, standalone) · TypeScript strict · Tailwind v4 ·
   Drizzle (`node-postgres`) · NextAuth 5 · Resend · local-disk uploads
   (`lib/storage.ts`, served by Caddy under `/uploads/*`) · next-intl with 9
-  locales (EN DE FR ES JA ZH KO TR AR; AR is RTL) · Recharts · Zod.
+  locales (EN DE FR ES JA ZH KO TR AR; AR is RTL) · `@bitbaum/chartkit` · Zod.
 
 ## Commands
 
@@ -245,7 +245,7 @@ and `sudo journalctl -u appcron-petvity-<name> --since -24h`.
 
 **Tailwind version:** v4. No `tailwind.config.*` file exists — Tailwind is loaded via `@import "tailwindcss"` in `app/globals.css`. There is no `@theme` block. All design tokens are `:root` CSS custom properties in `globals.css`. Do not create a `tailwind.config.*` file. Arbitrary Tailwind values or `style={{}}` must be avoided — use semantic CSS classes defined in `globals.css` instead.
 
-**JS token file:** `lib/config/design-tokens.ts` exports `TOKENS` (a `const` object) with hex values mirroring `globals.css` — for use in JS rendering contexts that cannot read CSS vars (Recharts SVG attributes, Satori OG images). Values must stay in sync with `globals.css` manually — it is NOT auto-derived. Do NOT use `TOKENS` in JSX classNames.
+**JS token file:** `lib/config/design-tokens.ts` exports `TOKENS` (a `const` object) with hex values mirroring `globals.css` — for use in JS rendering contexts that cannot read CSS vars (Satori OG images). Values must stay in sync with `globals.css` manually — it is NOT auto-derived. Do NOT use `TOKENS` in JSX classNames.
 
 ### CSS Custom Properties (`app/globals.css` `:root`)
 

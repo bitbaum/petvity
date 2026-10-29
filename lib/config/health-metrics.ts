@@ -35,8 +35,6 @@ export type MetricDef = {
    * The signal algorithm inverts the out-of-range check for these.
    */
   inverted?: boolean;
-  /** CSS var for chart line colour */
-  chartColor: string;
 };
 
 /** Days of health metric history shown in charts and public profiles. */
@@ -66,7 +64,6 @@ export const HEALTH_METRIC_CONFIG: Record<MetricId, MetricDef> = {
     },
     icon: "Scale",
     description: "Body weight in kilograms",
-    chartColor: "var(--teal)",
   },
 
   temperature: {
@@ -90,7 +87,6 @@ export const HEALTH_METRIC_CONFIG: Record<MetricId, MetricDef> = {
     },
     icon: "Thermometer",
     description: "Body temperature in degrees Celsius",
-    chartColor: "var(--warn)",
   },
 
   heart_rate: {
@@ -113,7 +109,6 @@ export const HEALTH_METRIC_CONFIG: Record<MetricId, MetricDef> = {
     },
     icon: "HeartPulse",
     description: "Resting heart rate in beats per minute",
-    chartColor: "var(--danger)",
   },
 
   // ── Emotional (1–5 scale) ────────────────────────────────────────────────
@@ -129,7 +124,6 @@ export const HEALTH_METRIC_CONFIG: Record<MetricId, MetricDef> = {
     normalRange: { default: { min: 3, max: 5 } },
     icon: "Zap",
     description: "1 = depleted, 5 = very energetic",
-    chartColor: "var(--champagne)",
   },
 
   mood: {
@@ -143,7 +137,6 @@ export const HEALTH_METRIC_CONFIG: Record<MetricId, MetricDef> = {
     normalRange: { default: { min: 3, max: 5 } },
     icon: "Smile",
     description: "1 = very low, 5 = very happy",
-    chartColor: "var(--teal)",
   },
 
   anxiety: {
@@ -158,7 +151,6 @@ export const HEALTH_METRIC_CONFIG: Record<MetricId, MetricDef> = {
     icon: "Activity",
     description: "1 = calm, 5 = highly anxious",
     inverted: true,
-    chartColor: "var(--warn)",
   },
 
   socialization: {
@@ -172,7 +164,6 @@ export const HEALTH_METRIC_CONFIG: Record<MetricId, MetricDef> = {
     normalRange: { default: { min: 3, max: 5 } },
     icon: "Users",
     description: "1 = withdrawn, 5 = very sociable",
-    chartColor: "var(--teal-dark)",
   },
 };
 

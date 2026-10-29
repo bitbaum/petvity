@@ -13,6 +13,7 @@ import {
 } from "@/lib/db/schema";
 import { and, count, countDistinct, desc, eq, gte, inArray } from "drizzle-orm";
 import Link from "next/link";
+import { Meter } from "@bitbaum/chartkit/react";
 import { computePetSignal } from "@/lib/domain/pet-signal";
 import { computeDigitalTwin } from "@/lib/domain/digital-twin";
 import {
@@ -443,15 +444,18 @@ export default async function DashboardPage() {
                             <TrendIcon className={`w-3 h-3 ${trendColor}`} />
                           )}
                         </div>
-                        <span className="text-xs text-[var(--muted)] tabular-nums">
-                          {twin.scorePercent}/100
-                        </span>
-                      </div>
-                      <div className="h-1.5 rounded-full bg-[var(--border)]">
-                        <div
-                          className={`h-1.5 rounded-full ${twinCfg.barColor}`}
-                          style={{ width: `${twin.scorePercent}%` }}
-                        />
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-[var(--muted)] tabular-nums">
+                            {twin.scorePercent}/100
+                          </span>
+                          <Meter
+                            value={twin.scorePercent}
+                            max={100}
+                            label={tTwin("emotionalScoreLabel")}
+                            tone={twinCfg.meterTone}
+                            showValue={false}
+                          />
+                        </div>
                       </div>
                     </div>
                   )}

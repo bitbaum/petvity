@@ -128,7 +128,7 @@ export default async function PetHealthPage({ params }: Params) {
     .slice()
     .reverse()
     .map((m) => ({
-      date: formatDateShort(m.date, locale),
+      date: m.date,
       weight: m.weightGrams != null ? HEALTH_METRIC_CONFIG.weight.toDisplay(m.weightGrams) : null,
       temperature:
         m.temperatureCentidegrees != null
@@ -319,21 +319,22 @@ export default async function PetHealthPage({ params }: Params) {
           {metrics.length >= 2 && (
             <>
               <h2 className="font-semibold text-[var(--ink)] -mb-2">{t("health30DayTrends")}</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 <HealthTrendChart
                   data={chartData}
                   lines={[
                     {
                       dataKey: "weight",
                       name: t("healthWeightLabel"),
-                      color: HEALTH_METRIC_CONFIG.weight.chartColor,
                     },
                   ]}
-                  unit=" kg"
+                  unit="kg"
                   title={t("healthWeightLabel")}
                   normalMin={HEALTH_METRIC_CONFIG.weight.toDisplay(weightRange.min)}
                   normalMax={HEALTH_METRIC_CONFIG.weight.toDisplay(weightRange.max)}
                   noDataText={t("chartNoData")}
+                  locale={locale}
+                  periodLabel={t("healthColDate")}
                   normalRangeLabel={t("chartNormalRange")}
                 />
                 <HealthTrendChart
@@ -342,7 +343,6 @@ export default async function PetHealthPage({ params }: Params) {
                     {
                       dataKey: "temperature",
                       name: t("healthTempShort"),
-                      color: HEALTH_METRIC_CONFIG.temperature.chartColor,
                     },
                   ]}
                   unit="°C"
@@ -350,6 +350,8 @@ export default async function PetHealthPage({ params }: Params) {
                   normalMin={HEALTH_METRIC_CONFIG.temperature.toDisplay(tempRange.min)}
                   normalMax={HEALTH_METRIC_CONFIG.temperature.toDisplay(tempRange.max)}
                   noDataText={t("chartNoData")}
+                  locale={locale}
+                  periodLabel={t("healthColDate")}
                   normalRangeLabel={t("chartNormalRange")}
                 />
                 <HealthTrendChart
@@ -358,14 +360,15 @@ export default async function PetHealthPage({ params }: Params) {
                     {
                       dataKey: "heart_rate",
                       name: t("healthHrShort"),
-                      color: HEALTH_METRIC_CONFIG.heart_rate.chartColor,
                     },
                   ]}
-                  unit=" bpm"
+                  unit="bpm"
                   title={t("healthHeartRateLabel")}
                   normalMin={hrRange.min}
                   normalMax={hrRange.max}
                   noDataText={t("chartNoData")}
+                  locale={locale}
+                  periodLabel={t("healthColDate")}
                   normalRangeLabel={t("chartNormalRange")}
                 />
               </div>
@@ -375,12 +378,11 @@ export default async function PetHealthPage({ params }: Params) {
                 lines={EMOTIONAL_METRICS.map((id) => ({
                   dataKey: id,
                   name: t(PORTAL_METRIC_LABEL_KEYS[id]),
-                  color: HEALTH_METRIC_CONFIG[id].chartColor,
                 }))}
-                unit="/5"
                 title={t("emotionalWellbeing")}
-                integerScale
                 noDataText={t("chartNoData")}
+                locale={locale}
+                periodLabel={t("healthColDate")}
               />
             </>
           )}

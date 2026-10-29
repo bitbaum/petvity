@@ -13,6 +13,7 @@ import { countOverdueVaccinations } from "@/lib/config/vaccinations";
 import { computeDigitalTwin } from "@/lib/domain/digital-twin";
 import { formatDateShort } from "@/lib/utils/format";
 import Link from "next/link";
+import { Meter } from "@bitbaum/chartkit/react";
 import { PublicPageNav } from "@/components/sections/PublicPageNav";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
@@ -196,47 +197,54 @@ export default async function PublicPetPage({ params }: Params) {
           {/* Digital twin — only shown when data exists */}
           {twin.id !== "no_data" && (
             <div className={`border-t border-[var(--border)] px-6 py-5 ${twinCfg.bg}`}>
-              <div className="flex items-center justify-between mb-3">
+              <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 mb-3">
                 <div>
                   <p className={`text-sm font-semibold ${twinCfg.text}`}>{tTwin(twin.id)}</p>
                   <p className="text-xs text-[var(--muted)] mt-0.5">
                     {tTwin(twin.summaryKey as Parameters<typeof tTwin>[0])}
                   </p>
                 </div>
-                <span className={`text-2xl font-extrabold tabular-nums ${twinCfg.text}`}>
-                  {twin.scorePercent}
-                  <span className="text-sm font-normal text-[var(--muted)] ms-1">/ 100</span>
-                </span>
-              </div>
-              {/* Overall bar */}
-              <div className="h-2 rounded-full bg-[var(--border)] mb-4">
-                <div
-                  className={`h-2 rounded-full ${twinCfg.barColor}`}
-                  style={{ width: `${twin.scorePercent}%` }}
-                />
+                <div className="text-end flex-shrink-0">
+                  <span className={`text-2xl font-extrabold tabular-nums ${twinCfg.text}`}>
+                    {twin.scorePercent}
+                    <span className="text-sm font-normal text-[var(--muted)] ms-1">/ 100</span>
+                  </span>
+                  <div>
+                    <Meter
+                      value={twin.scorePercent}
+                      max={100}
+                      label={tTwin("emotionalScoreLabel")}
+                      tone={twinCfg.meterTone}
+                      showValue={false}
+                    />
+                  </div>
+                </div>
               </div>
               {/* Metric bars */}
               {twin.metrics.length > 0 && (
                 <div className="grid grid-cols-2 gap-x-6 gap-y-2.5">
                   {twin.metrics.map((m) => (
-                    <div key={m.id}>
-                      <div className="flex justify-between text-xs mb-1">
+                    <div key={m.id} className="min-w-0">
+                      <div className="flex justify-between gap-2 text-xs mb-1">
                         <span className="text-[var(--muted)]">
                           {tTwin((TWIN_METRIC_LABELS[m.id] ?? m.id) as Parameters<typeof tTwin>[0])}
                         </span>
-                        <span className="text-[var(--ink2)]">
+                        <span className="text-[var(--ink2)] text-end">
                           {tTwin(
                             (TWIN_SCALE[m.id]?.[m.rawValue - 1] ??
                               String(m.rawValue)) as Parameters<typeof tTwin>[0],
                           )}
                         </span>
                       </div>
-                      <div className="h-1.5 rounded-full bg-[var(--border)]">
-                        <div
-                          className={`h-1.5 rounded-full ${twinCfg.barColor}`}
-                          style={{ width: `${m.fillPercent}%` }}
-                        />
-                      </div>
+                      <Meter
+                        value={m.fillPercent}
+                        max={100}
+                        label={tTwin(
+                          (TWIN_METRIC_LABELS[m.id] ?? m.id) as Parameters<typeof tTwin>[0],
+                        )}
+                        tone={twinCfg.meterTone}
+                        showValue={false}
+                      />
                     </div>
                   ))}
                 </div>

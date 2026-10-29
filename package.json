@@ -24,6 +24,7 @@
   "dependencies": {
     "@auth/drizzle-adapter": "^1.11.3",
     "@bitbaum/accountkit": "^0.14.0",
+    "@bitbaum/chartkit": "^0.7.0",
     "@bitbaum/mail-kit": "^0.2.0",
     "@bitbaum/whenkit": "^0.3.3",
     "@neondatabase/serverless": "^1.2.0",
@@ -51,7 +52,6 @@
     "pg": "^8.23.1",
     "react": "19.3.1",
     "react-dom": "19.3.1",
-    "recharts": "^3.10.1",
     "stripe": "^22.6.2",
     "tailwind-merge": "^3.7.0",
     "zod": "^4.6.7"
