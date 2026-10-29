@@ -95,9 +95,11 @@ describe("POST /api/account (registration)", () => {
     expect(res.status).toBe(400);
   });
 
-  it("returns 400 when password is too short (< 8 chars)", async () => {
-    const res = await POST(makePostRequest({ email: "new@example.com", password: "short" }));
-    expect(res.status).toBe(400);
+  it("returns 400 when password is empty or longer than the shared rule allows", async () => {
+    for (const password of ["", "x".repeat(129)]) {
+      const res = await POST(makePostRequest({ email: "new@example.com", password }));
+      expect(res.status).toBe(400);
+    }
   });
 
   it("returns 409 when email already exists", async () => {

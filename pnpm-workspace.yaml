@@ -12,3 +12,6 @@ allowBuilds:
 minimumReleaseAgeExclude:
   - "@bitbaum/mail-kit"
   - "bip-kit"
+  - "@bitbaum/accountkit"
+  - "@bitbaum/whenkit@0.3.3"
+  - limitkit@0.2.1

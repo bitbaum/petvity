@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { EMOTIONAL_METRICS, HEALTH_METRIC_CONFIG } from "@/lib/config/health-metrics";
 import { petPath } from "@/lib/config/routes";
+import { DateInput } from "@/components/ui/date-input";
 type PhysicalHint = { min: number; max: number; unit: string } | null;
 
 type InitialValues = {
@@ -131,7 +132,7 @@ export function HealthLogForm({
       {/* Date */}
       <div className="card p-5">
         <label className="form-label">{t("logDate")}</label>
-        <input
+        <DateInput
           type="date"
           value={form.date}
           onChange={(e) => setForm({ ...form, date: e.target.value })}

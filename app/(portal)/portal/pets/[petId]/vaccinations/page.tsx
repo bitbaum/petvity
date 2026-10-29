@@ -22,6 +22,7 @@ import { VACCINATION_DUE_SOON_DAYS } from "@/lib/config/pet-signal";
 import { useHealthList } from "@/hooks/useHealthList";
 import { useTranslations, useLocale } from "next-intl";
 import PageHeader from "@/components/portal/PageHeader";
+import { DateInput } from "@/components/ui/date-input";
 
 /* ── Icon map — React components stay in the UI layer, not in config ─────── */
 const STATUS_ICONS: Partial<Record<VaccinationStatusId, React.ElementType>> = {
@@ -246,7 +247,7 @@ export default function VaccinationsPage() {
               <label className="form-label">
                 {t("vaccDateAdministered")} <span className="text-[var(--danger-text)]">*</span>
               </label>
-              <input
+              <DateInput
                 type="date"
                 className="form-input"
                 required
@@ -260,7 +261,7 @@ export default function VaccinationsPage() {
                 {t("vaccNextDue")}
                 <span className="text-[var(--muted)] font-normal ms-1">{t("listOptional")}</span>
               </label>
-              <input
+              <DateInput
                 type="date"
                 className="form-input"
                 value={form.nextDueDate}

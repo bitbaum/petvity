@@ -72,4 +72,30 @@ describe("POST /api/auth/forgot-password", () => {
     const body = await res.json();
     expect(body.success).toBe(true);
   });
+
+  it("sends no reset link to an account OrangeCat created (unverified address)", async () => {
+    db._queryFindFirst.mockResolvedValueOnce({
+      id: "user-2",
+      email: "victim@example.com",
+      password: null,
+      orangecatSub: "actor-1",
+    });
+    const res = await POST(makeRequest({ email: "victim@example.com" }));
+    expect(res.status).toBe(200);
+    expect((await res.json()).success).toBe(true);
+    const { sendEmail } = await import("@/lib/email");
+    expect(sendEmail).not.toHaveBeenCalled();
+  });
+
+  it("still sends one to an OrangeCat-linked account with its own password", async () => {
+    db._queryFindFirst.mockResolvedValueOnce({
+      id: "user-3",
+      email: "owner@example.com",
+      password: "hash",
+      orangecatSub: "actor-2",
+    });
+    await POST(makeRequest({ email: "owner@example.com" }));
+    const { sendEmail } = await import("@/lib/email");
+    expect(sendEmail).toHaveBeenCalledTimes(1);
+  });
 });

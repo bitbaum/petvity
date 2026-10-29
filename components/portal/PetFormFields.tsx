@@ -4,6 +4,7 @@ import { SEX_OPTIONS, getBreedOptions } from "@/lib/config/species";
 import type { SpeciesId, SexId } from "@/lib/config/species";
 import { useTranslations } from "next-intl";
 import { ToggleSwitch } from "@/components/ui/ToggleSwitch";
+import { DateInput } from "@/components/ui/date-input";
 
 /**
  * The fields "add a pet" and "edit a pet" render identically.
@@ -89,7 +90,7 @@ export function PetBirthDateAndSexFields({ form, onChange }: FieldProps) {
     <div className="grid grid-cols-2 gap-4">
       <div>
         <label className="form-label">{t("petBirthDate")}</label>
-        <input
+        <DateInput
           type="date"
           value={form.birthDate}
           onChange={(e) => onChange({ birthDate: e.target.value })}

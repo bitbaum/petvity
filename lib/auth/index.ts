@@ -8,13 +8,14 @@ import { getInstance } from "@/lib/db";
 import { users } from "@/lib/db/schema";
 import { loginSchema, resolveRole } from "@/lib/domain/auth";
 import type { UserRole } from "./types";
+import type { AdapterUser } from "next-auth/adapters";
 import {
-  ORANGECAT_PROVIDER_ID,
-  orangecatCredentials,
+  emailEarnsPromotion,
+  orangecatClient,
   orangecatProvider,
   withOrangecatIdentity,
   type OrangecatUserStore,
-} from "./orangecat";
+} from "@bitbaum/accountkit/orangecat";
 import "./types"; // ensure module augmentation is applied
 
 // Functional config pattern — DrizzleAdapter(getInstance()) is only called on
@@ -23,7 +24,7 @@ import "./types"; // ensure module augmentation is applied
 type Db = ReturnType<typeof getInstance>;
 
 /** users.orangecat_sub is the only thing an OrangeCat login resolves on. */
-function orangecatUserStore(db: Db): OrangecatUserStore {
+function orangecatUserStore(db: Db): OrangecatUserStore<AdapterUser> {
   return {
     async findBySub(sub) {
       const row = await db.query.users.findFirst({ where: eq(users.orangecatSub, sub) });
@@ -55,7 +56,7 @@ function orangecatUserStore(db: Db): OrangecatUserStore {
 
 export const { handlers, auth, signIn, signOut } = NextAuth(() => {
   const db = getInstance();
-  const orangecat = orangecatCredentials();
+  const orangecat = orangecatClient();
   return {
     adapter: withOrangecatIdentity(DrizzleAdapter(db), orangecatUserStore(db)),
     session: { strategy: "jwt" },
@@ -65,7 +66,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth(() => {
     },
     providers: [
       // Absent (not broken) until the box has the client pair.
-      ...(orangecat ? [orangecatProvider(orangecat.id, orangecat.secret)] : []),
+      ...(orangecat ? [orangecatProvider(orangecat)] : []),
       // Kept for any Google-linked account; OrangeCat now carries Google in the UI.
       Google({
         clientId: process.env.GOOGLE_CLIENT_ID,
@@ -115,9 +116,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth(() => {
           //
           // Never for an OrangeCat login: its email is unverified profile data,
           // so promoting on it would make admin a matter of typing an address.
-          const viaOrangecat = account?.provider === ORANGECAT_PROVIDER_ID;
           const effectiveRole: UserRole =
-            !viaOrangecat && resolveRole(user.email ?? "") === "admin" ? "admin" : existingRole;
+            emailEarnsPromotion(account?.provider) && resolveRole(user.email ?? "") === "admin"
+              ? "admin"
+              : existingRole;
 
           if (effectiveRole !== existingRole && user.id) {
             await db.update(users).set({ role: effectiveRole }).where(eq(users.id, user.id));
