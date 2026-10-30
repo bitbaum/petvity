@@ -116,16 +116,21 @@ try {
     await page.goto(base + "/reset-password?token=" + token);
     await page.getByLabel("New password", { exact: true }).waitFor();
     check(!page.url().includes("token="), `${tag} the token leaves the address bar`);
-    await page.getByLabel("New password", { exact: true }).fill("a new long password");
-    await page.getByLabel("Repeat new password").fill("a different password");
-    const reset = page.getByRole("button", { name: "Reset password", exact: true });
-    await reset.click();
+    // accountkit 0.9.1 asks for the new password once, with a show/hide eye
+    // (the same PasswordField as sign-up); there is no repeat field.
+    const newPassword = page.getByLabel("New password", { exact: true });
     check(
-      (await page.locator('p[role="alert"]').textContent()).includes("do not match"),
-      `${tag} mismatched passwords are caught before any request`,
+      (await page.locator('input[type="password"]').count()) === 1,
+      `${tag} the new password is asked for once`,
     );
-    check(resets.length === 0, `${tag} no request was made for mismatched passwords`);
-    await page.getByLabel("Repeat new password").fill("a new long password");
+    await newPassword.fill("a new long password");
+    await page.getByRole("button", { name: "Show password" }).click();
+    check(
+      (await newPassword.getAttribute("type")) === "text",
+      `${tag} the eye shows the typed password`,
+    );
+    await page.getByRole("button", { name: "Hide password" }).click();
+    const reset = page.getByRole("button", { name: "Reset password", exact: true });
     await reset.click();
     await page
       .waitForFunction(
@@ -148,7 +153,6 @@ try {
     // A fresh valid reset through to success.
     await page.goto(base + "/reset-password?token=" + token);
     await page.getByLabel("New password", { exact: true }).fill("a new long password");
-    await page.getByLabel("Repeat new password").fill("a new long password");
     await page.getByRole("button", { name: "Reset password", exact: true }).click();
     await page.getByRole("status").waitFor();
     check(

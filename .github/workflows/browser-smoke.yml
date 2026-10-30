@@ -7,6 +7,7 @@ name: Browser smoke
 # (the invalid_client sign-in of 2026-10-30). The fleet rollout gate requires
 # this workflow before a shared-package change ships here. Synthetic people
 # only; no mail is sent (no mail key, and example.test is undeliverable).
+# A second step checks the password-recovery pages.
 on:
   pull_request:
     branches: [main]
@@ -63,6 +64,12 @@ jobs:
           pnpm exec next start -p 3000 > next.log 2>&1 &
           for i in $(seq 60); do curl -sf -o /dev/null http://localhost:3000/login && break; sleep 1; done
           pnpm run browser:journey
+      # The password-recovery pages (accountkit's shared form on Petvity's two
+      # routes), network stubbed per request. It starts its own server, so it
+      # runs even when the journey above failed.
+      - name: Recovery pages
+        if: ${{ !cancelled() }}
+        run: pnpm run browser:smoke
       - name: Keep screenshots and the server log
         if: always()
         uses: actions/upload-artifact@v4
