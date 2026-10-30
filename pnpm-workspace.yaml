@@ -16,3 +16,8 @@ minimumReleaseAgeExclude:
   - "@bitbaum/whenkit@0.3.3"
   - limitkit@0.2.1
   - "@bitbaum/chartkit@0.7.0"
+
+overrides:
+  # Security floors (2026-10-30 dev-toolchain sweep): stay inside the
+  # major the parents already allow; pnpm does not re-resolve these on update.
+  "vite@8": "^8.2.4"
