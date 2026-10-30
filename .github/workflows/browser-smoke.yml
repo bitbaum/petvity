@@ -1,0 +1,75 @@
+name: Browser smoke
+
+# An account can be made and used: register through /register, see the portal,
+# sign out, a wrong password refused, sign back in — in a real Chromium against
+# the production build and a throwaway PostgreSQL. No GOOGLE_* pair is set, so
+# the journey also proves no Google provider or button appears without one
+# (the invalid_client sign-in of 2026-10-30). The fleet rollout gate requires
+# this workflow before a shared-package change ships here. Synthetic people
+# only; no mail is sent (no mail key, and example.test is undeliverable).
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+concurrency:
+  group: browser-smoke-${{ github.ref }}-${{ github.ref == 'refs/heads/main' && github.sha || 'branch' }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  account:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: app
+          POSTGRES_PASSWORD: app
+          POSTGRES_DB: petvity_smoke
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U app -d petvity_smoke"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgres://app:app@127.0.0.1:5432/petvity_smoke
+      AUTH_SECRET: synthetic-petvity-journey-secret-at-least-32-chars
+      AUTH_TRUST_HOST: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+      BASE_URL: http://localhost:3000
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # The committed chain starts at 0001 (0000 was never committed), so it
+      # cannot replay onto an empty database. This throwaway one takes the
+      # schema straight from lib/db/schema.ts, which is what the app queries.
+      # Never do this to a shared database: production is migrated by the deploy.
+      - name: Schema from the Drizzle definitions
+        run: pnpm exec drizzle-kit push --force
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm run build
+      - name: Account journey
+        run: |
+          pnpm exec next start -p 3000 > next.log 2>&1 &
+          for i in $(seq 60); do curl -sf -o /dev/null http://localhost:3000/login && break; sleep 1; done
+          pnpm run browser:journey
+      - name: Keep screenshots and the server log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: petvity-account-journey
+          path: |
+            browser-smoke-artifacts/
+            next.log
+          retention-days: 14
+          if-no-files-found: warn

@@ -75,7 +75,10 @@ pnpm verify       # format check + lint + typecheck + CSS-var check + test — t
 ```
 
 CI (`.github/workflows/ci.yml`) runs `verify` plus `pnpm build`; the build is
-hermetic (the sitemap is `force-dynamic`, no build-time DB). Merging to `main`
+hermetic (the sitemap is `force-dynamic`, no build-time DB). `.github/workflows/browser-smoke.yml`
+runs `pnpm browser:journey` (`scripts/ci/account-journey.mjs`) in Chromium
+against the build and a throwaway Postgres: register, sign out, wrong password
+refused, sign in, and no Google button without a `GOOGLE_*` pair. Merging to `main`
 deploys: `.github/workflows/deploy.yml` calls loki's reusable selfhost-deploy
 workflow once this commit's CI is green. Manual fallback, from the loki repo:
 `scripts/hetzner/deploy.sh petvity`.

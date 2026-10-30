@@ -1,8 +1,9 @@
 import { auth } from "@/lib/auth/edge";
 import createIntlMiddleware from "next-intl/middleware";
 import { routing } from "./i18n/routing";
-import { NextResponse } from "next/server";
+import { NextResponse, type NextFetchEvent, type NextRequest } from "next/server";
 import { POST_LOGIN_PATH } from "@/lib/config/auth";
+import { withoutSessionCookie } from "@/lib/auth/session-cookie";
 
 const intlMiddleware = createIntlMiddleware(routing);
 
@@ -49,7 +50,7 @@ const AUTH_PATHS = ["/login", "/register", "/forgot-password", "/reset-password"
 // /unsubscribe is here so the email link works whether the recipient is logged in or not.
 const PUBLIC_BYPASS_PATHS = ["/unsubscribe"];
 
-export default auth((req) => {
+const authProxy = auth((req) => {
   const { pathname } = req.nextUrl;
   const session = req.auth;
   const dest = session?.user?.role === "admin" ? "/admin/users" : POST_LOGIN_PATH;
@@ -96,7 +97,14 @@ export default auth((req) => {
 
   // ── Marketing site: locale routing ───────────────────────────────────────
   return intlMiddleware(req);
-});
+  // As a proxy, Auth.js calls this with (request, event) and always resolves to
+  // a Response; its overloads only describe the route-handler form.
+}) as unknown as (req: NextRequest, ev: NextFetchEvent) => Promise<Response>;
+
+// Reads the session, never re-issues it: see lib/auth/session-cookie.ts.
+export default async function proxy(req: NextRequest, ev: NextFetchEvent) {
+  return withoutSessionCookie(await authProxy(req, ev));
+}
 
 export const config = {
   matcher: [

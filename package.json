@@ -17,6 +17,7 @@
     "db:studio": "dotenv -e .env.local -- drizzle-kit studio",
     "test": "vitest run",
     "browser:smoke": "node scripts/ci/recovery-browser-check.mjs",
+    "browser:journey": "node scripts/ci/account-journey.mjs",
     "verify": "npm run format:check && pnpm run lint && pnpm run typecheck && node scripts/ci/check-css-vars.mjs && pnpm run test",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
