@@ -51,12 +51,11 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      # The committed chain starts at 0001 (0000 was never committed), so it
-      # cannot replay onto an empty database. This throwaway one takes the
-      # schema straight from lib/db/schema.ts, which is what the app queries.
-      # Never do this to a shared database: production is migrated by the deploy.
-      - name: Schema from the Drizzle definitions
-        run: pnpm exec drizzle-kit push --force
+      # From the committed migrations, batched the way the deploy batches them
+      # (loki apply-schema.sh), and then compared with what drizzle-kit push
+      # makes of lib/db/schema.ts: a schema change without its migration fails here.
+      - name: Schema from the committed migrations
+        run: scripts/ci/migrations-replay.sh
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm run build
       - name: Account journey
