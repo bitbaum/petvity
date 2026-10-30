@@ -68,10 +68,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth(() => {
       // Absent (not broken) until the box has the client pair.
       ...(orangecat ? [orangecatProvider(orangecat)] : []),
       // Kept for any Google-linked account; OrangeCat now carries Google in the UI.
-      Google({
-        clientId: process.env.GOOGLE_CLIENT_ID,
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      }),
+      // Mounted only with its client pair: without one Google answers
+      // invalid_client (client_id=undefined), which was live on 2026-10-30.
+      ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
+        ? [
+            Google({
+              clientId: process.env.GOOGLE_CLIENT_ID,
+              clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+            }),
+          ]
+        : []),
       Credentials({
         async authorize(credentials) {
           const parsed = loginSchema.safeParse(credentials);
