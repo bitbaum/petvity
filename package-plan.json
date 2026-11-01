@@ -21,5 +21,12 @@
         }
       ]
     }
+  },
+  "exceptions": {
+    "authentication": {
+      "package": "@bitbaum/accountkit",
+      "status": "staged",
+      "reason": "AccountKit's runtime is staged behind AUTH_RUNTIME=accountkit (off). Auth.js answers until the import under locks and deployed proof with an approved test identity. See docs/ACCOUNTKIT-MIGRATION.md."
+    }
   }
 }

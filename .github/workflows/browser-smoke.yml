@@ -8,6 +8,10 @@ name: Browser smoke
 # this workflow before a shared-package change ships here. Synthetic people
 # only; no mail is sent (no mail key, and example.test is undeliverable).
 # A second step checks the password-recovery pages.
+#
+# The account job runs twice: on Auth.js (what production runs) and on the
+# staged AccountKit runtime (AUTH_RUNTIME=accountkit, off in production until
+# the switch; docs/ACCOUNTKIT-MIGRATION.md), after the cutover import.
 on:
   pull_request:
     branches: [main]
@@ -24,6 +28,11 @@ permissions:
 
 jobs:
   account:
+    name: account (${{ matrix.runtime }})
+    strategy:
+      fail-fast: false
+      matrix:
+        runtime: [authjs, accountkit]
     runs-on: ubuntu-latest
     timeout-minutes: 20
     services:
@@ -41,6 +50,7 @@ jobs:
       DATABASE_URL: postgres://app:app@127.0.0.1:5432/petvity_smoke
       AUTH_SECRET: synthetic-petvity-journey-secret-at-least-32-chars
       AUTH_TRUST_HOST: "true"
+      AUTH_RUNTIME: ${{ matrix.runtime == 'accountkit' && 'accountkit' || '' }}
       NEXT_TELEMETRY_DISABLED: "1"
       BASE_URL: http://localhost:3000
     steps:
@@ -56,10 +66,23 @@ jobs:
       # makes of lib/db/schema.ts: a schema change without its migration fails here.
       - name: Schema from the committed migrations
         run: scripts/ci/migrations-replay.sh
+      # The rehearsal must pass on the chain, then the real-database journeys
+      # (they leave the tables empty), then the import for the browser journey.
+      - name: AccountKit import and journeys on the chain
+        if: matrix.runtime == 'accountkit'
+        env:
+          PETVITY_JOURNEY_DATABASE_URL: postgres://app:app@127.0.0.1:5432/petvity_smoke
+        run: |
+          node scripts/db/accountkit-import-rehearse.mjs
+          pnpm exec vitest run lib/auth/shared
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -q -X -c "TRUNCATE users, auth_users CASCADE"
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -q -X -1 -f scripts/db/accountkit-import.sql
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm run build
       - name: Account journey
         run: |
+          # The shared runtime answers with absolute URLs on its own origin.
+          if [ "$AUTH_RUNTIME" = accountkit ]; then export AUTH_URL="$BASE_URL"; fi
           pnpm exec next start -p 3000 > next.log 2>&1 &
           for i in $(seq 60); do curl -sf -o /dev/null http://localhost:3000/login && break; sleep 1; done
           pnpm run browser:journey
@@ -73,7 +96,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: petvity-account-journey
+          name: petvity-account-journey-${{ matrix.runtime }}
           path: |
             browser-smoke-artifacts/
             next.log

@@ -4,6 +4,9 @@ import { routing } from "./i18n/routing";
 import { NextResponse, type NextFetchEvent, type NextRequest } from "next/server";
 import { POST_LOGIN_PATH } from "@/lib/config/auth";
 import { withoutSessionCookie } from "@/lib/auth/session-cookie";
+import { sharedAuthEnabled } from "@/lib/auth/shared/runtime";
+import { sharedSessionFor } from "@/lib/auth/shared/session";
+import type { Session } from "next-auth";
 
 const intlMiddleware = createIntlMiddleware(routing);
 
@@ -50,9 +53,9 @@ const AUTH_PATHS = ["/login", "/register", "/forgot-password", "/reset-password"
 // /unsubscribe is here so the email link works whether the recipient is logged in or not.
 const PUBLIC_BYPASS_PATHS = ["/unsubscribe"];
 
-const authProxy = auth((req) => {
+/** Petvity's routing for one request, given who (if anyone) is signed in. */
+function route(req: NextRequest, session: Session | null) {
   const { pathname } = req.nextUrl;
-  const session = req.auth;
   const dest = session?.user?.role === "admin" ? "/admin/users" : POST_LOGIN_PATH;
 
   // ── NextAuth API routes — always public ──────────────────────────────────
@@ -97,13 +100,23 @@ const authProxy = auth((req) => {
 
   // ── Marketing site: locale routing ───────────────────────────────────────
   return intlMiddleware(req);
-  // As a proxy, Auth.js calls this with (request, event) and always resolves to
-  // a Response; its overloads only describe the route-handler form.
-}) as unknown as (req: NextRequest, ev: NextFetchEvent) => Promise<Response>;
+}
 
-// Reads the session, never re-issues it: see lib/auth/session-cookie.ts.
+// As a proxy, Auth.js calls this with (request, event) and always resolves to
+// a Response; its overloads only describe the route-handler form.
+const authJsProxy = auth((req) => route(req, req.auth)) as unknown as (
+  req: NextRequest,
+  ev: NextFetchEvent,
+) => Promise<Response>;
+
+// Reads the session, never re-issues it: see lib/auth/session-cookie.ts. With
+// AUTH_RUNTIME=accountkit the session is a database row read through AccountKit
+// (docs/ACCOUNTKIT-MIGRATION.md); otherwise the Auth.js JWT.
 export default async function proxy(req: NextRequest, ev: NextFetchEvent) {
-  return withoutSessionCookie(await authProxy(req, ev));
+  const response = sharedAuthEnabled()
+    ? await route(req, await sharedSessionFor(req.headers))
+    : await authJsProxy(req, ev);
+  return withoutSessionCookie(response);
 }
 
 export const config = {
