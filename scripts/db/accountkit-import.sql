@@ -65,10 +65,14 @@ DO $$ BEGIN
 END $$;
 
 -- From here on every writer of either table keeps the other in step
--- (functions in migration 0008). Rolled back with everything else in a rehearsal.
+-- (functions in migrations 0008 and 0009). Rolled back with everything else in a rehearsal.
 DROP TRIGGER IF EXISTS petvity_accountkit_from_users ON users;
 CREATE TRIGGER petvity_accountkit_from_users AFTER INSERT OR UPDATE OR DELETE ON users
   FOR EACH ROW EXECUTE FUNCTION petvity_accountkit_from_users();
 DROP TRIGGER IF EXISTS petvity_accountkit_to_users ON auth_users;
 CREATE TRIGGER petvity_accountkit_to_users AFTER UPDATE ON auth_users
   FOR EACH ROW EXECUTE FUNCTION petvity_accountkit_to_users();
+-- AccountKit's own account deletion removes the Petvity account (migration 0009).
+DROP TRIGGER IF EXISTS petvity_accountkit_delete_users ON auth_users;
+CREATE TRIGGER petvity_accountkit_delete_users AFTER DELETE ON auth_users
+  FOR EACH ROW EXECUTE FUNCTION petvity_accountkit_delete_users();

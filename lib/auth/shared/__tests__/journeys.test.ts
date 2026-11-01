@@ -1,8 +1,9 @@
 // @vitest-environment node
 /**
- * Petvity's ways in on the shared runtime: the calls `next-auth/react` makes,
- * answered by AccountKit, on the committed migration chain plus the real
- * cutover import and its mirror triggers.
+ * Petvity's ways in on the shared runtime, on the committed migration chain
+ * plus the real cutover import and its mirror triggers: AccountKit's own
+ * endpoints (what its sign-in, sign-up and account screens call) and the
+ * calls `next-auth/react` still makes (`useSession`, `signOut`, the demo).
  *
  * Needs a disposable PostgreSQL built by scripts/ci/migrations-replay.sh:
  *   PETVITY_JOURNEY_DATABASE_URL=postgres://…  pnpm exec vitest run lib/auth/shared
@@ -23,13 +24,13 @@ vi.hoisted(() => {
     Object.assign(process.env, {
       DATABASE_URL: url,
       AUTH_URL: "https://petvity.example.test",
-      AUTH_RUNTIME: "accountkit",
       AUTH_SECRET: "synthetic-petvity-journey-secret-at-least-32-chars",
       ADMIN_EMAILS: "boss@example.test",
     });
     delete process.env.RESEND_API_KEY;
     delete process.env.BETTER_AUTH_SECRET;
     delete process.env.ORANGECAT_OAUTH_CLIENT_ID;
+    delete process.env.SIGNIN_CLIENT_ID;
   }
 });
 
@@ -39,7 +40,7 @@ vi.mock("next/headers", () => ({
 }));
 
 const PASSWORD = "synthetic legacy password";
-const VET = "00000000-0000-4000-8000-000000000001";
+const VET = "00000000-0000-4000-8000-000000000011";
 const OWNER = "00000000-0000-4000-8000-000000000002";
 const BOSS = "00000000-0000-4000-8000-000000000003";
 const OC_ONLY = "00000000-0000-4000-8000-000000000004";
@@ -65,6 +66,7 @@ describe.skipIf(!URL_)("Petvity on AccountKit (real PostgreSQL)", () => {
     browser = createCompatClient({ compat: (await import("../compat")).compat, site: SITE });
     await sql(`DROP TRIGGER IF EXISTS petvity_accountkit_from_users ON users;
       DROP TRIGGER IF EXISTS petvity_accountkit_to_users ON auth_users;
+      DROP TRIGGER IF EXISTS petvity_accountkit_delete_users ON auth_users;
       TRUNCATE auth_users, auth_accounts, auth_sessions, auth_verifications,
         auth_passkeys, auth_two_factors, users CASCADE`);
     const hash = await bcrypt.hash(PASSWORD, 4);
@@ -103,6 +105,40 @@ describe.skipIf(!URL_)("Petvity on AccountKit (real PostgreSQL)", () => {
     browser.signIn("credentials", { email, password }, `${SITE}/dashboard`);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const session = () => browser.session<any>();
+
+  // What AccountKit's screens send: JSON to its own endpoints, same cookie jar.
+  let hop = 0;
+  async function native(route: string, body: Record<string, unknown>) {
+    const { compat } = await import("../compat");
+    hop += 1;
+    const res = await compat.route.POST(
+      new Request(`${SITE}/api/auth${route}`, {
+        method: "POST",
+        headers: {
+          origin: SITE,
+          "content-type": "application/json",
+          "x-forwarded-for": `203.0.113.${hop % 250}`,
+          cookie: browser.cookie,
+        },
+        body: JSON.stringify(body),
+      }) as never,
+    );
+    const jar = new Map(
+      browser.cookie
+        .split("; ")
+        .filter(Boolean)
+        .map((part) => [part.slice(0, part.indexOf("=")), part.slice(part.indexOf("=") + 1)]),
+    );
+    for (const set of res.headers.getSetCookie()) {
+      const [pair] = set.split(";");
+      const name = pair.slice(0, pair.indexOf("="));
+      const value = pair.slice(pair.indexOf("=") + 1);
+      if (/max-age=0/i.test(set) || value === "") jar.delete(name);
+      else jar.set(name, value);
+    }
+    browser.cookie = [...jar].map(([name, value]) => `${name}=${value}`).join("; ");
+    return res;
+  }
 
   test("an imported bcrypt account signs in, in any letter case, with its role and verification", async () => {
     const result = await signIn("VET@example.test", PASSWORD);
@@ -166,7 +202,7 @@ describe.skipIf(!URL_)("Petvity on AccountKit (real PostgreSQL)", () => {
     expect(await sql("SELECT 1 FROM auth_users WHERE id = $1", [OWNER])).toHaveLength(0);
   });
 
-  test("Petvity's registration writer reaches the shared row, so the new person signs in", async () => {
+  test("a password written to users (the demo reset, Loki's live proof) reaches the shared row", async () => {
     await sql(
       `INSERT INTO users (email, name, password) VALUES ('fresh@example.test', 'Fresh', $1)`,
       [await bcrypt.hash("a brand new password", 4)],
@@ -179,7 +215,7 @@ describe.skipIf(!URL_)("Petvity on AccountKit (real PostgreSQL)", () => {
     });
   });
 
-  test("changing your own password keeps your session and ends every other one", async () => {
+  test("a password written to users keeps the session it names and ends every other one", async () => {
     await signIn("owner@example.test", PASSWORD);
     const mine = browser.cookie;
     browser.cookie = "";
@@ -213,7 +249,7 @@ describe.skipIf(!URL_)("Petvity on AccountKit (real PostgreSQL)", () => {
     expect(new URL(fresh.url).searchParams.get("error")).toBeNull();
   });
 
-  test("a reset through Petvity's link ends every session", async () => {
+  test("a password written to users with no session named ends every session", async () => {
     await signIn("owner@example.test", PASSWORD);
     await sql("UPDATE users SET password = $1 WHERE id = $2", [
       await bcrypt.hash("reset password", 4),
@@ -263,11 +299,106 @@ describe.skipIf(!URL_)("Petvity on AccountKit (real PostgreSQL)", () => {
     }
   });
 
-  test("AccountKit's own credential writers stay closed until Petvity adopts its screens", async () => {
-    for (const route of ["/sign-up/email", "/change-password", "/request-password-reset"]) {
-      const res = await answer(request(route, { form: { email: "x@example.test" } }));
-      expect(res.status, route).toBe(404);
+  test("a sign-up through AccountKit makes a Petvity pet owner under the same id", async () => {
+    const res = await native("/sign-up/email", {
+      name: "",
+      email: "Fresh@Example.test",
+      password: "a brand new password",
+    });
+    expect(res.status).toBe(200);
+    const { user } = await res.json();
+    const [row] = await sql("SELECT email, role, password FROM users WHERE id = $1", [user.id]);
+    expect(row).toMatchObject({ email: "fresh@example.test", role: "pet_owner", password: null });
+    // The pages that still call next-auth/react read Petvity's shape.
+    expect((await session()).user).toMatchObject({ id: user.id, role: "pet_owner" });
+    browser.cookie = "";
+    const again = await native("/sign-in/email", {
+      email: "fresh@example.test",
+      password: "a brand new password",
+    });
+    expect(again.status).toBe(200);
+  });
+
+  test("an imported bcrypt account signs in through AccountKit's form, wrong password refused", async () => {
+    expect(
+      (await native("/sign-in/email", { email: "owner@example.test", password: "nope" })).status,
+    ).toBe(401);
+    expect(await session()).toBeNull();
+    const res = await native("/sign-in/email", { email: "OWNER@example.test", password: PASSWORD });
+    expect(res.status).toBe(200);
+    expect((await session()).user).toMatchObject({ id: OWNER, role: "pet_owner" });
+  });
+
+  test("ADMIN_EMAILS promotes at AccountKit's password sign-in too", async () => {
+    await native("/sign-in/email", { email: "boss@example.test", password: PASSWORD });
+    expect((await session()).user.role).toBe("admin");
+  });
+
+  test("a password change through AccountKit replaces the imported hash", async () => {
+    await native("/sign-in/email", { email: "owner@example.test", password: PASSWORD });
+    const res = await native("/change-password", {
+      currentPassword: PASSWORD,
+      newPassword: "the new password",
+      revokeOtherSessions: true,
+    });
+    expect(res.status).toBe(200);
+    browser.cookie = "";
+    expect(
+      (await native("/sign-in/email", { email: "owner@example.test", password: PASSWORD })).status,
+    ).toBe(401);
+    expect(
+      (
+        await native("/sign-in/email", {
+          email: "owner@example.test",
+          password: "the new password",
+        })
+      ).status,
+    ).toBe(200);
+  });
+
+  test("a rename through AccountKit's panel reaches Petvity's row", async () => {
+    await native("/sign-in/email", { email: "owner@example.test", password: PASSWORD });
+    expect((await native("/update-user", { name: "Panel Name" })).status).toBe(200);
+    expect((await session()).user.name).toBe("Panel Name");
+  });
+
+  test("deleting the account through AccountKit deletes the Petvity account", async () => {
+    await native("/sign-in/email", { email: "owner@example.test", password: PASSWORD });
+    const res = await native("/delete-user", { password: PASSWORD });
+    expect(res.status).toBe(200);
+    expect(await sql("SELECT 1 FROM users WHERE id = $1", [OWNER])).toHaveLength(0);
+    expect(await session()).toBeNull();
+  });
+
+  test("the shared demo account cannot change how it signs in, or be deleted", async () => {
+    const { DEMO_ACCOUNT } = await import("@/lib/config/demo");
+    await sql(`INSERT INTO users (id, email, name, password) VALUES ($1, $2, 'Demo', $3)`, [
+      DEMO_ACCOUNT.id,
+      DEMO_ACCOUNT.email,
+      await bcrypt.hash(DEMO_ACCOUNT.password, 4),
+    ]);
+    await native("/sign-in/email", { email: DEMO_ACCOUNT.email, password: DEMO_ACCOUNT.password });
+    expect((await session()).user.id).toBe(DEMO_ACCOUNT.id);
+    for (const [route, body] of [
+      ["/change-password", { currentPassword: DEMO_ACCOUNT.password, newPassword: "taken over" }],
+      ["/delete-user", { password: DEMO_ACCOUNT.password }],
+      ["/two-factor/enable", { password: DEMO_ACCOUNT.password }],
+    ] as const) {
+      expect((await native(route, body)).status, route).toBe(403);
     }
+    browser.cookie = "";
+    // No link is mailed to the demo address: refused with mail on, absent without it.
+    expect([403, 404]).toContain(
+      (await native("/sign-in/magic-link", { email: DEMO_ACCOUNT.email })).status,
+    );
+    expect(
+      (
+        await native("/sign-in/email", {
+          email: DEMO_ACCOUNT.email,
+          password: DEMO_ACCOUNT.password,
+        })
+      ).status,
+    ).toBe(200);
   });
 
   test("the import is a no-op for the same snapshot and refuses drift", async () => {

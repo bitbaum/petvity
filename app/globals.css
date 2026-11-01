@@ -653,6 +653,16 @@ body {
   color: var(--ink);
 }
 
+/* A full-width button whose label may be longer than a phone is wide (the
+   shared sign-in's "Continue with Google, Apple, GitHub, X or Facebook" is
+   277px at 14px; a 320px screen leaves 204px). The buttons above never wrap,
+   and a utility cannot change that (see the note below), so this modifier does.
+   Found by the account journey at 320px. */
+.btn-wrap {
+  white-space: normal;
+  text-align: center;
+}
+
 /* ── Form inputs ────────────────────────────────────────────────────────────── */
 
 /* NOTE: these rules are unlayered, so Tailwind utilities (which live in

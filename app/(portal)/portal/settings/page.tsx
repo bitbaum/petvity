@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition, useEffect } from "react";
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
@@ -10,14 +10,13 @@ import {
   CheckCircle,
   Mail,
   AlertTriangle,
-  X,
   Download,
   Store,
   Stethoscope,
   ArrowRight,
 } from "lucide-react";
 import Link from "next/link";
-import { PasswordInput } from "@/components/portal/PasswordInput";
+import { PORTAL_ROUTES } from "@/lib/config/routes";
 import PageHeader from "@/components/portal/PageHeader";
 
 export default function SettingsPage() {
@@ -91,71 +90,6 @@ export default function SettingsPage() {
       setDigestOptOut(!next);
       setEmailMsg({ ok: false, text: data.error ?? t("settingsUpdateFailed") });
     }
-  }
-
-  /* ── Password section ────────────────────────────────────────────────── */
-  const [currentPw, setCurrentPw] = useState("");
-  const [newPw, setNewPw] = useState("");
-  const [confirmPw, setConfirmPw] = useState("");
-  const [pwSaving, setPwSaving] = useState(false);
-  const [pwMsg, setPwMsg] = useState<{ ok: boolean; text: string } | null>(null);
-
-  async function savePassword(e: React.FormEvent) {
-    e.preventDefault();
-    setPwMsg(null);
-    if (newPw !== confirmPw) {
-      setPwMsg({ ok: false, text: t("settingsPwNoMatch") });
-      return;
-    }
-    setPwSaving(true);
-    const res = await fetch("/api/account", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ currentPassword: currentPw, newPassword: newPw }),
-    });
-    const data = await res.json();
-    setPwSaving(false);
-    if (data.success) {
-      setPwMsg({ ok: true, text: t("settingsPwChanged") });
-      setCurrentPw("");
-      setNewPw("");
-      setConfirmPw("");
-    } else {
-      setPwMsg({ ok: false, text: data.error ?? t("settingsPwChangeFailed") });
-    }
-  }
-
-  /* ── Account deletion section ────────────────────────────────────────── */
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [deletePw, setDeletePw] = useState("");
-  const [deleteConfirm, setDeleteConfirm] = useState("");
-  const [deleting, setDeleting] = useState(false);
-  const [deleteErr, setDeleteErr] = useState("");
-
-  function openDeleteModal() {
-    setDeletePw("");
-    setDeleteConfirm("");
-    setDeleteErr("");
-    setShowDeleteModal(true);
-  }
-
-  async function deleteAccount(e: React.FormEvent) {
-    e.preventDefault();
-    setDeleteErr("");
-    setDeleting(true);
-    const res = await fetch("/api/account", {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ currentPassword: deletePw, confirm: deleteConfirm }),
-    });
-    const data = await res.json();
-    if (!data.success) {
-      setDeleting(false);
-      setDeleteErr(data.error ?? t("settingsDeletionFailed"));
-      return;
-    }
-    // Account is gone — sign out and land on the marketing home in default locale.
-    await signOut({ callbackUrl: "/en" });
   }
 
   // The session arrives client-side, so this page server-renders before it
@@ -276,59 +210,19 @@ export default function SettingsPage() {
           )}
         </div>
 
-        {/* ── Password ─────────────────────────────────────────────────── */}
+        {/* ── Sign-in and security (AccountKit) ───────────────────────── */}
         <div className="card p-6">
-          <div className="flex items-center gap-2 mb-5">
+          <div className="flex items-center gap-2 mb-3">
             <div className="icon-tile bg-[var(--teal-light)]">
               <Lock className="w-4 h-4 text-[var(--teal)]" />
             </div>
-            <h2 className="font-semibold text-[var(--ink)]">{t("settingsChangePassword")}</h2>
+            <h2 className="font-semibold text-[var(--ink)]">{t("settingsSecurityTitle")}</h2>
           </div>
-
-          <form onSubmit={savePassword} className="space-y-4">
-            <div>
-              <label className="form-label">{t("settingsCurrentPassword")}</label>
-              <PasswordInput
-                value={currentPw}
-                onChange={setCurrentPw}
-                autoComplete="current-password"
-                required
-                placeholder={t("settingsCurrentPwPlaceholder")}
-              />
-            </div>
-
-            <div>
-              <label className="form-label">{t("settingsNewPassword")}</label>
-              <PasswordInput
-                value={newPw}
-                onChange={setNewPw}
-                autoComplete="new-password"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="form-label">{t("settingsConfirmPassword")}</label>
-              <PasswordInput
-                value={confirmPw}
-                onChange={setConfirmPw}
-                autoComplete="new-password"
-                required
-                placeholder={t("settingsConfirmPwPlaceholder")}
-              />
-            </div>
-
-            {pwMsg && (
-              <p className={pwMsg.ok ? "alert-success flex items-center gap-2" : "alert-error"}>
-                {pwMsg.ok && <CheckCircle className="w-4 h-4 flex-shrink-0" />}
-                {pwMsg.text}
-              </p>
-            )}
-
-            <button type="submit" disabled={pwSaving} className="btn-primary disabled:opacity-60">
-              {pwSaving ? t("settingsUpdating") : t("settingsUpdatePassword")}
-            </button>
-          </form>
+          <p className="text-sm text-[var(--muted)] mb-4">{t("settingsSecurityDesc")}</p>
+          <Link href={PORTAL_ROUTES.security} className="btn-outline inline-flex">
+            {t("settingsSecurityOpen")}
+            <ArrowRight className="w-4 h-4" />
+          </Link>
         </div>
 
         {/* ── Data export ─────────────────────────────────────────────── */}
@@ -383,7 +277,7 @@ export default function SettingsPage() {
           </div>
         )}
 
-        {/* ── Danger zone ─────────────────────────────────────────────── */}
+        {/* ── Danger zone: deletion lives with the sign-in settings ─────── */}
         <div className="card p-6 border-[var(--danger)]">
           <div className="flex items-center gap-2 mb-3">
             <div className="icon-tile bg-[var(--danger-bg)]">
@@ -392,84 +286,13 @@ export default function SettingsPage() {
             <h2 className="font-semibold text-[var(--danger-text)]">{t("settingsDangerZone")}</h2>
           </div>
           <p className="text-sm text-[var(--muted)] mb-4">{t("settingsDangerDesc")}</p>
-          <button
-            type="button"
-            onClick={openDeleteModal}
-            className="text-sm font-medium px-4 py-2 rounded-lg border border-[var(--danger)] text-[var(--danger-text)] hover:bg-[var(--danger-bg)] transition-colors"
+          <Link
+            href={PORTAL_ROUTES.security}
+            className="inline-flex text-sm font-medium px-4 py-2 rounded-lg border border-[var(--danger)] text-[var(--danger-text)] hover:bg-[var(--danger-bg)] transition-colors no-underline"
           >
             {t("settingsDeleteMyAccount")}
-          </button>
+          </Link>
         </div>
-
-        {/* ── Delete confirmation modal ───────────────────────────────── */}
-        {showDeleteModal && (
-          <div
-            className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4"
-            onClick={(e) => e.target === e.currentTarget && setShowDeleteModal(false)}
-          >
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-[var(--danger-text)] flex items-center gap-2">
-                  <AlertTriangle className="w-5 h-5" /> {t("settingsDeleteAccountTitle")}
-                </h3>
-                <button
-                  onClick={() => setShowDeleteModal(false)}
-                  className="p-1.5 rounded-lg hover:bg-[var(--off)] transition-colors"
-                  aria-label={t("settingsClose")}
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-
-              <p className="text-sm text-[var(--ink2)] mb-4 leading-relaxed">
-                {t("settingsDeleteModalDesc")}
-              </p>
-
-              <form onSubmit={deleteAccount} className="space-y-4">
-                <div>
-                  <label className="form-label">{t("settingsCurrentPassword")}</label>
-                  <PasswordInput
-                    value={deletePw}
-                    onChange={setDeletePw}
-                    autoComplete="current-password"
-                    required
-                    placeholder={t("settingsConfirmPwModal")}
-                  />
-                </div>
-                <div>
-                  <label className="form-label">{t("settingsTypeDeleteToConfirm")}</label>
-                  <input
-                    className="form-input"
-                    value={deleteConfirm}
-                    onChange={(e) => setDeleteConfirm(e.target.value)}
-                    placeholder="DELETE"
-                    required
-                  />
-                </div>
-
-                {deleteErr && <p className="alert-error">{deleteErr}</p>}
-
-                <div className="flex justify-end gap-3 pt-2">
-                  <button
-                    type="button"
-                    onClick={() => setShowDeleteModal(false)}
-                    className="btn-outline"
-                    disabled={deleting}
-                  >
-                    {t("cancel")}
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={deleting || deleteConfirm !== "DELETE" || !deletePw}
-                    className="text-sm font-medium px-4 py-2 rounded-lg bg-[var(--danger)] text-white hover:bg-[var(--danger-dark)] disabled:opacity-60 transition-colors"
-                  >
-                    {deleting ? t("settingsDeleting") : t("settingsDeleteForever")}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

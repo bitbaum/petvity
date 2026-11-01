@@ -1,14 +1,13 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { signIn } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { PawPrint, Stethoscope, Heart, Scissors } from "lucide-react";
+// Type only: the runtime half of this entry point pulls in node:crypto.
+import type { SignInMethods } from "@bitbaum/accountkit/auth";
+import { SignUpForm } from "@/components/auth/AuthForms";
 import { USER_ROLE_CONFIG } from "@/lib/config/users";
-import { PasswordInput } from "@/components/portal/PasswordInput";
-import { OrangecatButton } from "@/components/auth/OrangecatButton";
-import { PasswordDisclosure } from "@/components/auth/PasswordDisclosure";
 import { PORTAL_ROUTES } from "@/lib/config/routes";
 
 const INTENDED_ROLES = ["pet_owner", "veterinarian", "pet_sitter", "groomer"] as const;
@@ -28,15 +27,14 @@ const ROLE_OPTIONS = INTENDED_ROLES.map((id) => ({
   ...ROLE_UI[id],
 }));
 
-export function RegisterForm({ orangecat }: { orangecat: boolean }) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const roleParam = searchParams.get("role");
-  const nameRef = useRef<HTMLInputElement>(null);
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirm, setConfirm] = useState("");
+/**
+ * Every account starts as a pet owner (AccountKit's sign-up asks for an email
+ * and a password, nothing else, and never lets a sign-up choose its role). The
+ * choice here says where the new person lands: a first pet, or the self-serve
+ * upgrade for vets, sitters and groomers.
+ */
+export function RegisterForm({ methods }: { methods: SignInMethods }) {
+  const roleParam = useSearchParams().get("role");
   const [intendedRole, setIntendedRole] = useState<IntendedRole>(
     roleParam === "vet"
       ? "veterinarian"
@@ -46,53 +44,10 @@ export function RegisterForm({ orangecat }: { orangecat: boolean }) {
           ? "groomer"
           : "pet_owner",
   );
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (!orangecat) nameRef.current?.focus();
-  }, [orangecat]);
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError("");
-
-    if (password !== confirm) {
-      setError("Passwords don't match.");
-      return;
-    }
-
-    setLoading(true);
-    const res = await fetch("/api/account", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: name.trim() || undefined, email, password, intendedRole }),
-    });
-    const data = await res.json();
-
-    if (!data.success) {
-      setLoading(false);
-      setError(data.error ?? "Registration failed.");
-      return;
-    }
-
-    const signInRes = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
-
-    setLoading(false);
-    if (signInRes?.error) {
-      setError("Account created — please log in.");
-    } else {
-      router.push(
-        intendedRole === "pet_owner"
-          ? "/portal/pets/new?from=registration"
-          : "/portal/professional-profile",
-      );
-    }
-  }
+  const next =
+    intendedRole === "pet_owner"
+      ? `${PORTAL_ROUTES.pets}/new?from=registration`
+      : PORTAL_ROUTES.becomeAPro;
 
   return (
     <>
@@ -101,125 +56,41 @@ export function RegisterForm({ orangecat }: { orangecat: boolean }) {
       </h1>
       <p className="text-sm text-[var(--muted)] mb-6">No credit card · Cancel anytime</p>
 
-      {error && <p className="alert-error mb-5">{error}</p>}
-
-      {orangecat && (
-        <OrangecatButton
-          label="Create an account with OrangeCat"
-          hint="Google, GitHub or email — one account for all OrangeCat apps"
-          // Every OrangeCat account starts as a pet owner; a pro (from ?role=)
-          // lands on the self-serve upgrade instead of the add-a-pet form.
-          redirectTo={
-            intendedRole === "pet_owner"
-              ? `${PORTAL_ROUTES.pets}/new?from=registration`
-              : PORTAL_ROUTES.becomeAPro
-          }
-        />
-      )}
-
-      <PasswordDisclosure collapsible={orangecat} summary="Sign up with email and password instead">
-        {/* Role selector */}
-        <div className="mb-5">
-          <p className="text-sm font-medium text-[var(--ink2)] mb-2">I am joining as…</p>
-          <div className="grid grid-cols-3 gap-2">
-            {ROLE_OPTIONS.map(({ id, icon: Icon, label, desc }) => {
-              const selected = intendedRole === id;
-              return (
-                <button
-                  key={id}
-                  type="button"
-                  onClick={() => setIntendedRole(id)}
-                  className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 text-center transition-all ${
-                    selected
-                      ? "border-[var(--teal)] bg-[var(--teal-light)]"
-                      : "border-[var(--border)] hover:border-[var(--teal-light)] hover:bg-[var(--off)]"
-                  }`}
+      {/* Role selector */}
+      <div className="mb-5">
+        <p className="text-sm font-medium text-[var(--ink2)] mb-2">I am joining as…</p>
+        <div className="grid grid-cols-3 gap-2">
+          {ROLE_OPTIONS.map(({ id, icon: Icon, label, desc }) => {
+            const selected = intendedRole === id;
+            return (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setIntendedRole(id)}
+                className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 text-center transition-all ${
+                  selected
+                    ? "border-[var(--teal)] bg-[var(--teal-light)]"
+                    : "border-[var(--border)] hover:border-[var(--teal-light)] hover:bg-[var(--off)]"
+                }`}
+              >
+                <Icon
+                  className={`w-5 h-5 ${selected ? "text-[var(--teal)]" : "text-[var(--muted)]"}`}
+                />
+                <span
+                  className={`text-xs font-semibold leading-tight ${selected ? "text-[var(--teal)]" : "text-[var(--ink2)]"}`}
                 >
-                  <Icon
-                    className={`w-5 h-5 ${selected ? "text-[var(--teal)]" : "text-[var(--muted)]"}`}
-                  />
-                  <span
-                    className={`text-xs font-semibold leading-tight ${selected ? "text-[var(--teal)]" : "text-[var(--ink2)]"}`}
-                  >
-                    {label}
-                  </span>
-                  <span className="text-xs text-[var(--muted)] leading-tight hidden sm:block">
-                    {desc}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
+                  {label}
+                </span>
+                <span className="text-xs text-[var(--muted)] leading-tight hidden sm:block">
+                  {desc}
+                </span>
+              </button>
+            );
+          })}
         </div>
+      </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div>
-            <label className="form-label">Your name</label>
-            <input
-              ref={nameRef}
-              type="text"
-              autoComplete="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="form-input"
-              placeholder="George"
-            />
-          </div>
-
-          <div>
-            <label className="form-label">Email</label>
-            <input
-              type="email"
-              autoComplete="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="form-input"
-              placeholder="you@example.com"
-            />
-          </div>
-
-          <div>
-            <label className="form-label">Password</label>
-            <PasswordInput
-              value={password}
-              onChange={setPassword}
-              autoComplete="new-password"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="form-label">Confirm password</label>
-            <PasswordInput
-              value={confirm}
-              onChange={setConfirm}
-              autoComplete="new-password"
-              required
-              placeholder="Repeat your password"
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="btn-primary w-full justify-center mt-1 py-3 text-base disabled:opacity-60"
-          >
-            {loading
-              ? "Setting up your account…"
-              : intendedRole === "pet_owner"
-                ? "Begin your pet's wellness journey"
-                : "Create professional account"}
-          </button>
-        </form>
-      </PasswordDisclosure>
-
-      <p className="mt-6 text-center text-sm text-[var(--muted)]">
-        Already have an account?{" "}
-        <Link href="/login" className="link-accent">
-          Log in
-        </Link>
-      </p>
+      <SignUpForm methods={methods} next={next} />
 
       <p className="mt-5 text-center text-xs text-[var(--muted)] leading-relaxed">
         By continuing, you agree to our{" "}

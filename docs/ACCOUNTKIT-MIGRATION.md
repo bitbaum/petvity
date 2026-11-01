@@ -1,7 +1,10 @@
 # AccountKit migration
 
-Petvity signs in through AccountKit since 2026-11-01 (`AUTH_RUNTIME=accountkit`).
-Auth.js (`lib/auth/index.ts`) stays in the tree for a rollback. Migration
+Petvity signs in through AccountKit since 2026-11-01, and since the same day
+on AccountKit's own screens with every method: email and password, an email
+sign-in link, passkeys, two-factor codes, password recovery, Sign in with
+OrangeCat and the shared bitbaum sign-in (each shown when its env is set;
+`lib/auth/methods.ts`). Auth.js is gone from the tree, Google with it. Migration
 `drizzle/0008_accountkit_staging.sql` adds AccountKit's tables beside it under
 the `auth_` prefix (`createAuthTables("auth_")` in `lib/db/accountkit.ts`),
 because Auth.js already owns `users`, `accounts` and `sessions`. The fleet's acceptance queue is
@@ -38,10 +41,11 @@ other shared session; `/api/account` names its own session in
 `petvity.keep_session`, so the person changing it stays signed in. A reset
 ends every session.
 
-## Shared runtime (on since 2026-11-01)
+## Shared runtime (on since 2026-11-01; the first step)
 
-With `AUTH_RUNTIME=accountkit` the runtime in `lib/auth/shared/` answers every
-sign-in; unset, Auth.js answers as today. The secret is `BETTER_AUTH_SECRET`,
+The runtime in `lib/auth/shared/` answers every sign-in. It first ran behind
+`AUTH_RUNTIME=accountkit`; since the screens step it no longer reads that
+switch, and Auth.js is gone. The secret is `BETTER_AUTH_SECRET`,
 or the `AUTH_SECRET` the box already holds. Absolute URLs use `AUTH_URL`, which
 production already sets.
 
@@ -54,10 +58,10 @@ production already sets.
   (`@bitbaum/accountkit/auth/nextauth-compat`, configured in
   `lib/auth/shared/compat.ts`) answers its calls from the shared runtime:
   `session` GET and POST, `csrf`, `providers`, `signout`,
-  `callback/credentials` and `signin/orangecat`. Of AccountKit's own endpoints
-  only the session, sign-in, sign-out and the OAuth callback are open. Its
-  sign-up, reset and password endpoints stay closed until Petvity adopts its
-  screens, so there is no second credential writer.
+  `callback/credentials` and `signin/orangecat`. In the first step only the
+  session, sign-in, sign-out and the OAuth callback of AccountKit's own
+  endpoints were open, so there was no second credential writer; the screens
+  step opened the rest (below).
 - A person AccountKit creates itself (a first OrangeCat sign-in) gets a
   Petvity row under the same id (`lib/auth/shared/accounts.ts`), as a pet owner
   with an unverified address.
@@ -66,6 +70,57 @@ production already sets.
 handlers on the replayed migration chain and the real import. CI's
 `browser-smoke.yml` account job runs the rehearsal and those journeys, then the
 whole browser account journey once per runtime. That is not deployed evidence.
+
+## AccountKit's screens (2026-11-01; the second step)
+
+`/login` renders AccountKit's `SignInForm`, `/register` its `SignUpForm`,
+`/forgot-password` its recovery form, and `/portal/settings/security` its
+`AccountPanel` (password, passkeys, two-factor, linked sign-ins, deleting the
+account). `lib/auth/shared/compat.ts` passes `screens: "accountkit"`
+(AccountKit 0.20.0), so all of AccountKit's endpoints are open; `useSession`
+and `signOut` on the other pages keep the `next-auth/react` protocol and
+Petvity's session shape. The demo button still signs in through the
+credentials callback.
+
+- **AccountKit is the only credential writer.** Petvity's registration
+  (`POST /api/account`), its reset routes, the settings password change and
+  its own account deletion are removed. New passwords are AccountKit's scrypt
+  in `auth_accounts`; `users.password` keeps each imported bcrypt hash but is
+  no longer read by anything.
+- **Kept working:** the same user ids, every imported bcrypt hash
+  (`legacyBcrypt`), every OrangeCat link, roles on `users`, `ADMIN_EMAILS`
+  promotion at a password or email-link sign-in (`petvity-plugin.ts`).
+- **Migration 0009** makes the panel's rename and deletion reach `users`
+  (the deletion cascades through pets, bookings, orders and the rest, as the
+  old settings deletion did). It replaces the mirror function in place and
+  attaches the deletion trigger where the mirror is attached.
+- **The demo account** is shared, so `petvity-plugin.ts` refuses any change
+  to how it signs in, its deletion, and any mailed link to its address. The
+  reset cron still rewrites it through `users.password` and the mirror.
+- **Sign-up** asks for an email and a password, nothing else (AccountKit's
+  rule). Every account starts as a pet owner; the "I am joining as…" choice
+  sends a vet, sitter or groomer to `/portal/become-a-pro`. The welcome mail
+  sequence, which greets by name, is not sent to these sign-ups (as for
+  OrangeCat sign-ups before); AccountKit sends its confirmation link.
+
+- **An email sign-in link proves the address.** When it signs in a person whose
+  address was not yet confirmed, better-auth drops any password set before
+  that proof (`revokeUnprovenAccountAccess`, a guard against someone who
+  registered another person's address first). That person sets a password
+  again through "Forgot your password?".
+
+CI (`browser-smoke.yml`) runs every way in against the production build and a
+migrated, imported PostgreSQL, with an Auth.js-era bcrypt account seeded before
+the import and AccountKit's mail caught by `scripts/ci/mail-sink.cjs`.
+
+### Rolling back the screens
+
+Revert the pull request that adopted them. That restores Petvity's pages and
+writers on the same shared runtime, which still verifies every password set
+since (scrypt) and every imported one. Do **not** run Loki's
+`accountkit-switch.yml rollback` any more: it empties the shared tables, and
+since this step they hold the only copy of every password set, every passkey
+and every second factor.
 
 ## Switched (2026-11-01)
 
@@ -88,9 +143,10 @@ OrangeCat's authorize page with the redirect `/api/auth/callback/orangecat`,
 which client `petvity` accepts. AccountKit 0.18.1 made that work; 0.18.0
 started it through an endpoint better-auth 1.7 removed (bitbaum/accountkit#55).
 
-To roll back, run the same workflow with `rollback`. It unsets `AUTH_RUNTIME`,
-restarts on Auth.js, drops the mirrors and empties the shared tables.
-Every hash stays bcrypt in `users.password`, so nothing needs a reset.
+Until AccountKit's screens were adopted, the rollback was the same workflow
+with `rollback` (unset `AUTH_RUNTIME`, restart on Auth.js, drop the mirrors,
+empty the shared tables). Since then it would lose data; see "Rolling back the
+screens" above.
 
 Proven live on 2026-11-01 by Loki's `accountkit-switch.yml` `prove` action,
 using throwaway accounts that it deleted again:
@@ -107,5 +163,5 @@ using throwaway accounts that it deleted again:
   (`unable_to_create_user`); AccountKit 0.19.0 fixed it
   (bitbaum/accountkit#56).
 
-Not proven by a machine: a reset mail arriving in a real inbox. The reset
-code is the product's own and did not change in the switch.
+Not proven by a machine: a reset mail arriving in a real inbox. Since the
+screens step the reset is AccountKit's; CI follows its mailed link end to end.

@@ -16,7 +16,6 @@
     "db:push": "dotenv -e .env.local -- drizzle-kit push",
     "db:studio": "dotenv -e .env.local -- drizzle-kit studio",
     "test": "vitest run",
-    "browser:smoke": "node scripts/ci/recovery-browser-check.mjs",
     "browser:journey": "node scripts/ci/account-journey.mjs",
     "verify": "npm run format:check && pnpm run lint && pnpm run typecheck && node scripts/ci/check-css-vars.mjs && pnpm run test",
     "format": "prettier --write .",
@@ -24,9 +23,8 @@
     "db:rehearse-import": "accountkit-rehearse-import scripts/db/accountkit-import.sql"
   },
   "dependencies": {
-    "@auth/drizzle-adapter": "^1.11.3",
     "@better-auth/passkey": "^1.7.14",
-    "@bitbaum/accountkit": "^0.19.0",
+    "@bitbaum/accountkit": "^0.20.0",
     "@bitbaum/chartkit": "^0.7.0",
     "@bitbaum/mail-kit": "^0.2.0",
     "@bitbaum/whenkit": "^0.3.3",

@@ -25,6 +25,7 @@ export const PORTAL_ROUTES = {
   professionalProfile: "/portal/professional-profile",
   becomeAPro: "/portal/become-a-pro",
   settings: "/portal/settings",
+  security: "/portal/settings/security",
 } as const;
 
 export type PortalRoute = (typeof PORTAL_ROUTES)[keyof typeof PORTAL_ROUTES];
