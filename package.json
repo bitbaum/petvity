@@ -20,7 +20,8 @@
     "browser:journey": "node scripts/ci/account-journey.mjs",
     "verify": "npm run format:check && pnpm run lint && pnpm run typecheck && node scripts/ci/check-css-vars.mjs && pnpm run test",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "db:rehearse-import": "accountkit-rehearse-import scripts/db/accountkit-import.sql"
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.11.3",

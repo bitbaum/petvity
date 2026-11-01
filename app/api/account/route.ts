@@ -11,8 +11,8 @@ import { BCRYPT_SALT_ROUNDS } from "@/lib/config/auth";
 import { sendEmail } from "@/lib/email";
 import { ownerWelcome } from "@/lib/email/templates";
 import { requireSession } from "@/lib/auth/guards";
-import { sharedAuthEnabled } from "@/lib/auth/shared/runtime";
-import { sharedSessionId } from "@/lib/auth/shared/session";
+import { sharedRuntimeEnabled } from "@bitbaum/accountkit/auth/switch";
+import { compat } from "@/lib/auth/shared/compat";
 import { isDemoEmail } from "@/lib/config/demo";
 import { makeUnsubscribeUrl } from "@/lib/auth/unsubscribe-token";
 
@@ -168,7 +168,7 @@ export async function PATCH(req: NextRequest) {
     // On the shared runtime a password change ends every other session of this
     // person (the mirror trigger); the one making the change stays signed in.
     const keep =
-      updates.password && sharedAuthEnabled() ? await sharedSessionId(req.headers) : null;
+      updates.password && sharedRuntimeEnabled() ? await compat.sessionIdFor(req.headers) : null;
     if (keep) {
       await db.transaction(async (tx) => {
         await tx.execute(sql`SELECT set_config('petvity.keep_session', ${keep}, true)`);

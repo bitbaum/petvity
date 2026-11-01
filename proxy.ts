@@ -4,8 +4,8 @@ import { routing } from "./i18n/routing";
 import { NextResponse, type NextFetchEvent, type NextRequest } from "next/server";
 import { POST_LOGIN_PATH } from "@/lib/config/auth";
 import { withoutSessionCookie } from "@/lib/auth/session-cookie";
-import { sharedAuthEnabled } from "@/lib/auth/shared/runtime";
-import { sharedSessionFor } from "@/lib/auth/shared/session";
+import { sharedRuntimeEnabled } from "@bitbaum/accountkit/auth/switch";
+import { compat } from "@/lib/auth/shared/compat";
 import type { Session } from "next-auth";
 
 const intlMiddleware = createIntlMiddleware(routing);
@@ -113,8 +113,8 @@ const authJsProxy = auth((req) => route(req, req.auth)) as unknown as (
 // AUTH_RUNTIME=accountkit the session is a database row read through AccountKit
 // (docs/ACCOUNTKIT-MIGRATION.md); otherwise the Auth.js JWT.
 export default async function proxy(req: NextRequest, ev: NextFetchEvent) {
-  const response = sharedAuthEnabled()
-    ? await route(req, await sharedSessionFor(req.headers))
+  const response = sharedRuntimeEnabled()
+    ? await route(req, await compat.sessionFor(req.headers))
     : await authJsProxy(req, ev);
   return withoutSessionCookie(response);
 }
