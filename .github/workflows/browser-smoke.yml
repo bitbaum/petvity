@@ -52,7 +52,8 @@ jobs:
       BASE_URL: http://localhost:3000
       LEGACY_EMAIL: legacy-journey@example.test
       LEGACY_PASSWORD: synthetic legacy journey password
-      MAIL_SINK: ${{ runner.temp }}/mail.jsonl
+      # Outside the uploaded artifacts: it holds (synthetic) reset tokens.
+      MAIL_SINK: /tmp/petvity-ci-mail.jsonl
       RESEND_API_KEY: re_ci_sink_only
       RESEND_FROM: Petvity <hello@petvity.orangecat.ch>
       ORANGECAT_OAUTH_CLIENT_ID: petvity-ci
