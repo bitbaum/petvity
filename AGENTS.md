@@ -193,9 +193,9 @@ The result is cached to `pets.lastKnownSignal` when a log is posted.
   Without it Auth.js resolves relative redirects against `localhost:$PORT`
   behind Caddy, and sign-out once sent every user to `https://localhost:4013/login`.
   `scripts/e2e-walkthrough.sh` checks sign-out returns to the site.
-- `@bitbaum/accountkit`'s runtime is staged in `lib/auth/shared/` behind
-  `AUTH_RUNTIME=accountkit`, off; Auth.js answers until the switch
-  (`docs/ACCOUNTKIT-MIGRATION.md`).
+- `@bitbaum/accountkit`'s runtime in `lib/auth/shared/` answers sign-in since
+  2026-11-01 (`AUTH_RUNTIME=accountkit` on the box); Auth.js stays in the tree
+  for a rollback (`docs/ACCOUNTKIT-MIGRATION.md`).
 
 ## Where things live
 
