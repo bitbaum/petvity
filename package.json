@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.11.3",
-    "@bitbaum/accountkit": "^0.14.0",
+    "@bitbaum/accountkit": "github:bitbaum/accountkit#b9d876f91f9a1b4acd875c4cfcb373c20db4288a",
     "@bitbaum/chartkit": "^0.7.0",
     "@bitbaum/mail-kit": "^0.2.0",
     "@bitbaum/whenkit": "^0.3.3",
