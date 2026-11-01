@@ -14,7 +14,7 @@ pnpm install
 pnpm dev          # local dev at http://localhost:3000
 ```
 
-Copy `.env.example` to `.env.local` and fill in the values (`DATABASE_URL`, `NEXTAUTH_SECRET`, etc.).
+Copy `.env.example` to `.env.local` and fill in the values (`DATABASE_URL`, `AUTH_SECRET`, etc.).
 
 ## Common commands
 

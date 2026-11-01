@@ -97,15 +97,16 @@ curl -fsS https://petvity.orangecat.ch/api/healthz && echo "  ✓ live"
 
 Production env lives in `/opt/petvity/shared/.env` (`/opt/petvity/app/.env` is
 a symlink to it, so edits survive deploys); restart with
-`systemctl restart petvity-app`. Required: `DATABASE_URL`, `NEXTAUTH_SECRET`,
+`systemctl restart petvity-app`. Required: `DATABASE_URL`, `AUTH_SECRET`,
 `CRON_SECRET` (no trailing whitespace — write it with `printf`, not `echo`),
 `NEXT_PUBLIC_APP_URL`, `AUTH_URL`, `AUTH_TRUST_HOST`, `RESEND_API_KEY`,
 `RESEND_FROM`, `ADMIN_EMAILS`. Optional, each degrading cleanly when absent:
 
 | Variable | Without it |
 | --- | --- |
-| `ORANGECAT_OAUTH_CLIENT_ID` / `_SECRET` (redirect `https://petvity.orangecat.ch/api/auth/callback/orangecat`), `ORANGECAT_OAUTH_ISSUER` (default `https://orangecat.ch`) | no "Sign in with OrangeCat"; email + password only |
-| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | no Google button is rendered |
+| `ORANGECAT_OAUTH_CLIENT_ID` / `_SECRET` (redirect `https://petvity.orangecat.ch/api/auth/callback/orangecat`), `ORANGECAT_OAUTH_ISSUER` (default `https://orangecat.ch`) | no "Continue with OrangeCat" |
+| `SIGNIN_ISSUER` / `SIGNIN_CLIENT_ID` / `SIGNIN_CLIENT_SECRET` (Morulia client `petvity`; loki `app-secrets.yml`) | no "Continue with Google, Apple, GitHub, X or Facebook" |
+| `RESEND_API_KEY` / `RESEND_FROM` | no email sign-in link and no password reset; every other way in still works |
 | `STRIPE_SECRET_KEY` | orders are recorded without payment; the UI says "Place order", never "Pay" |
 | `STRIPE_WEBHOOK_SECRET` (endpoint `/api/payments/webhook`, `checkout.session.completed`) | orders never flip to Paid |
 
@@ -119,83 +120,30 @@ a symlink to it, so edits survive deploys); restart with
   with guest checkout). `app/api/` — route handlers; `app/api/cron/*` the jobs.
 - `lib/db/schema.ts` — SSOT for every table and enum. `lib/db/index.ts` — lazy
   Postgres singleton (a Proxy; no connection at build time).
-- `lib/auth/index.ts` — NextAuth in function form (adapter called lazily),
-  including the OrangeCat provider. `lib/auth/edge.ts` — the edge config
-  `proxy.ts` uses (no bcrypt, no DB). `lib/auth/guards.ts` —
-  `requireSession()` / `requireRole()` / `requireAdmin()`.
-- `lib/config/` — labels, options, thresholds, routes (table below).
-  `lib/domain/` — pure logic. `lib/email/templates.ts` — every email template.
-
-## Routing rules (`proxy.ts`)
-
-1. `/api/auth/*` passes through before every other check — NextAuth must stay public.
-2. `PORTAL_PREFIXES` (`/portal`, `/admin`) and `PRIVATE_API_PREFIXES` are
-   auth-guarded with no locale routing; unauthenticated → `/login?returnTo=…`,
-   non-admin at `/admin` → `/portal/dashboard`. A new private API route adds
-   its prefix to `PRIVATE_API_PREFIXES`; never add `/api` as a blanket prefix,
-   and never add a portal path one by one — put it under `/portal/`.
-3. `AUTH_PATHS` bypass intl routing; a signed-in visitor is sent to the dashboard.
-   A new auth page is added there.
-4. Other `/api/*` pass through and guard themselves with `requireSession()`
-   (registration, public profiles, products, adoptions, password recovery).
-   **`/api/shop/*` must never become private** — it is guest checkout. It is
-   rate limited, and `/api/shop/order/[token]/pay` is authorised by the order's
-   unguessable `publicToken`.
-5. Everything else gets next-intl locale routing.
-
-Password recovery screens are the shared `PasswordRecoveryForm` from
-`@bitbaum/accountkit/auth/react`, reached through `lib/auth/recovery-client.ts`;
-fix a form defect in bitbaum/accountkit, not here.
-
-## Data conventions
-
-- Weight is integer grams, temperature integer centidegrees, emotional metrics
-  integers 1–5 (anxiety inverted: 5 = very anxious). Convert with `toDisplay()` /
-  `toStorage()` in `lib/config/health-metrics.ts`; a float breaks the alert
-  threshold comparisons.
-- `orders.userId` is nullable: a guest order has `guestEmail` and
-  `publicToken` instead (CHECK `orders_buyer_identity`). **Never `innerJoin`
-  orders to users** — it silently drops guest orders. Use `leftJoin` plus
-  `COALESCE(users.name, orders.shippingName)` /
-  `COALESCE(users.email, orders.guestEmail)`, as
-  `app/api/orders/seller/route.ts` and `app/api/admin/orders/route.ts` do.
-- A guest's only handle on an order is `publicToken`, emailed on the receipt;
-  the receipt page is `noindex`, `no-referrer`, and answers 404 for any unknown
-  token.
-- `placeOrder()` in `lib/domain/orders.ts` is the one order implementation, for
-  the signed-in cart and guest checkout alike.
-
-## Pet wellness signal
-
-`computePetSignal()` in `lib/domain/pet-signal.ts` is pure and unit-tested; any
-change updates `lib/domain/pet-signal.test.ts`. A new pet with nothing overdue
-inside the alert window is healthy; no recent check-in is "watch"; out-of-range
-metrics against the species' normal ranges raise it to "watch" or "concern"; an
-overdue vaccination escalates it. Thresholds live in `lib/config/pet-signal.ts`.
-The result is cached to `pets.lastKnownSignal` when a log is posted.
-
-## Auth and roles
-
-- **Sign in with OrangeCat** is the primary path (OIDC, `client_secret_post` +
-  PKCE + state). A user is keyed only on `users.orangecat_sub` — **never linked
-  by email** (OrangeCat's `email_verified` cannot be trusted; linking would be
-  account takeover), and an OrangeCat login never earns `ADMIN_EMAILS`
-  promotion. A taken email gets a `@users.invalid` placeholder.
-- Credentials: bcrypt passwords. The password rule is
-  `@bitbaum/accountkit/auth/password` (`MIN_PASSWORD_LENGTH`,
-  `MAX_PASSWORD_LENGTH`, `passwordProblem`); never add a local minimum,
-  strength check or hint.
-- Roles are `userRoleEnum` in `lib/db/schema.ts`: `ADMIN_EMAILS` → admin,
-  everyone else starts as `pet_owner`; professional roles are set by an admin.
+- `lib/auth/shared/runtime.ts` — accounts on `@bitbaum/accountkit`: email and
+  password, an email sign-in link, passkeys, two-factor, recovery, OrangeCat
+  and the shared bitbaum sign-in, each offered when its env is set
+  (`lib/auth/methods.ts`). AccountKit is the only writer of credentials.
+  `lib/auth/shared/petvity-plugin.ts` — the demo account's guard and the
+  `ADMIN_EMAILS` promotion. `lib/auth/index.ts` — `auth()` and `/api/auth/*`
+  (`lib/auth/shared/compat.ts`: AccountKit's endpoints plus the
+  `next-auth/react` session protocol that `useSession` and `signOut` still
+  use). `lib/auth/guards.ts` — `requireSession()` / `requireRole()` /
+  `requireAdmin()`. The screens are AccountKit's (`components/auth/AuthForms.tsx`):
+  `/login`, `/register`, `/forgot-password`, `/portal/settings/security`.
+  The password rule is `@bitbaum/accountkit/auth/password`; never add a local
+  minimum, strength check or hint.
+- Roles are `userRoleEnum` in `lib/db/schema.ts`, on `users`: `ADMIN_EMAILS` →
+  admin at a password or email-link sign-in, everyone else starts as
+  `pet_owner`; pros upgrade at `/portal/become-a-pro`.
 - Route guards: `const { session, error } = await requireSession(); if (error) return error;`.
   `lib/auth/types.ts` adds `id`, `role` and `emailVerified` to the session.
-- `AUTH_URL` must be set in prod; `AUTH_TRUST_HOST` does not replace it.
-  Without it Auth.js resolves relative redirects against `localhost:$PORT`
-  behind Caddy, and sign-out once sent every user to `https://localhost:4013/login`.
+- `AUTH_URL` must be set in prod: AccountKit builds every redirect, mail link
+  and passkey origin from it. Without it sign-out once sent every user to
+  `https://localhost:4013/login`.
   `scripts/e2e-walkthrough.sh` checks sign-out returns to the site.
-- `@bitbaum/accountkit`'s runtime in `lib/auth/shared/` answers sign-in since
-  2026-11-01 (`AUTH_RUNTIME=accountkit` on the box); Auth.js stays in the tree
-  for a rollback (`docs/ACCOUNTKIT-MIGRATION.md`).
+- The move from Auth.js, the import, the mirror triggers and how to roll back:
+  `docs/ACCOUNTKIT-MIGRATION.md`.
 
 ## Where things live
 
@@ -255,7 +203,7 @@ and `sudo journalctl -u appcron-petvity-<name> --since -24h`.
   domain from `lib/config/email.ts` or an RFC 2606 TLD (`.invalid`, `.test`),
   never a live mailbox: bounces burn the sending reputation shared with the
   rest of the fleet. `sendEmail()` drops the structurally undeliverable ones.
-- Never import `lib/auth/index.ts` from middleware; use `lib/auth/edge.ts`.
+- `proxy.ts` reads the session through `compat.sessionFor(headers)`; it never re-issues a cookie (`lib/auth/session-cookie.ts`).
 - Never instantiate `drizzle()` in a component or route; use the `db` export.
 - The public product page sells without an account — no "Sign up to buy" CTA.
 
