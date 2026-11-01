@@ -6,17 +6,22 @@ import bcrypt from "bcryptjs";
 import { and, eq, isNull, or } from "drizzle-orm";
 import { getInstance } from "@/lib/db";
 import { users } from "@/lib/db/schema";
-import { loginSchema, resolveRole } from "@/lib/domain/auth";
+import { loginSchema } from "@/lib/domain/auth";
 import type { UserRole } from "./types";
 import type { AdapterUser } from "next-auth/adapters";
 import {
-  emailEarnsPromotion,
   orangecatClient,
   orangecatProvider,
   withOrangecatIdentity,
   type OrangecatUserStore,
 } from "@bitbaum/accountkit/orangecat";
 import "./types"; // ensure module augmentation is applied
+import type { Session } from "next-auth";
+import type { NextRequest } from "next/server";
+import { roleAfterSignIn } from "./claims";
+import { sharedAuth, sharedAuthEnabled } from "./shared/runtime";
+import { sharedSession } from "./shared/session";
+import { nextAuthClientCompat } from "./shared/bridge";
 
 // Functional config pattern — DrizzleAdapter(getInstance()) is only called on
 // the first actual request, never at module evaluation time. This prevents the
@@ -54,7 +59,7 @@ function orangecatUserStore(db: Db): OrangecatUserStore<AdapterUser> {
   };
 }
 
-export const { handlers, auth, signIn, signOut } = NextAuth(() => {
+const nextAuth = NextAuth(() => {
   const db = getInstance();
   const orangecat = orangecatClient();
   return {
@@ -115,17 +120,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth(() => {
           token.emailVerified = (user as { emailVerified?: Date | null }).emailVerified ?? null;
 
           const existingRole = ((user as { role?: UserRole }).role ?? "pet_owner") as UserRole;
-          // ADMIN_EMAILS may only PROMOTE at login — resolveRole without an
-          // intendedRole returns "pet_owner" for everyone else, and writing
-          // that back would silently demote every vet/sitter on their next
-          // login (and did, until this guard).
-          //
-          // Never for an OrangeCat login: its email is unverified profile data,
-          // so promoting on it would make admin a matter of typing an address.
-          const effectiveRole: UserRole =
-            emailEarnsPromotion(account?.provider) && resolveRole(user.email ?? "") === "admin"
-              ? "admin"
-              : existingRole;
+          const effectiveRole = roleAfterSignIn(account?.provider, user.email, existingRole);
 
           if (effectiveRole !== existingRole && user.id) {
             await db.update(users).set({ role: effectiveRole }).where(eq(users.id, user.id));
@@ -159,3 +154,26 @@ export const { handlers, auth, signIn, signOut } = NextAuth(() => {
     },
   };
 });
+
+export const { signIn, signOut } = nextAuth;
+
+/**
+ * Who is signed in. One reader for both runtimes: AccountKit's shared session
+ * with AUTH_RUNTIME=accountkit, the Auth.js JWT otherwise. Same shape either
+ * way (docs/ACCOUNTKIT-MIGRATION.md).
+ */
+export async function auth(): Promise<Session | null> {
+  return sharedAuthEnabled() ? sharedSession() : nextAuth.auth();
+}
+
+/** /api/auth/*: AccountKit answers when the shared runtime is on. */
+export const handlers = {
+  GET: async (request: NextRequest) =>
+    sharedAuthEnabled()
+      ? ((await nextAuthClientCompat(request)) ?? sharedAuth.GET(request))
+      : nextAuth.handlers.GET(request),
+  POST: async (request: NextRequest) =>
+    sharedAuthEnabled()
+      ? ((await nextAuthClientCompat(request)) ?? sharedAuth.POST(request))
+      : nextAuth.handlers.POST(request),
+};

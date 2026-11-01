@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { getInstance } from "@/lib/db";
 import { users } from "@/lib/db/schema";
@@ -11,6 +11,8 @@ import { BCRYPT_SALT_ROUNDS } from "@/lib/config/auth";
 import { sendEmail } from "@/lib/email";
 import { ownerWelcome } from "@/lib/email/templates";
 import { requireSession } from "@/lib/auth/guards";
+import { sharedAuthEnabled } from "@/lib/auth/shared/runtime";
+import { sharedSessionId } from "@/lib/auth/shared/session";
 import { isDemoEmail } from "@/lib/config/demo";
 import { makeUnsubscribeUrl } from "@/lib/auth/unsubscribe-token";
 
@@ -163,7 +165,18 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ success: false, error: "Nothing to update" }, { status: 400 });
     }
 
-    await db.update(users).set(updates).where(eq(users.id, session.user.id));
+    // On the shared runtime a password change ends every other session of this
+    // person (the mirror trigger); the one making the change stays signed in.
+    const keep =
+      updates.password && sharedAuthEnabled() ? await sharedSessionId(req.headers) : null;
+    if (keep) {
+      await db.transaction(async (tx) => {
+        await tx.execute(sql`SELECT set_config('petvity.keep_session', ${keep}, true)`);
+        await tx.update(users).set(updates).where(eq(users.id, session.user.id));
+      });
+    } else {
+      await db.update(users).set(updates).where(eq(users.id, session.user.id));
+    }
     return NextResponse.json({ success: true });
   } catch {
     return NextResponse.json({ success: false, error: "Update failed" }, { status: 500 });
