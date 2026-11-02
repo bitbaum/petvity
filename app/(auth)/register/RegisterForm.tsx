@@ -6,6 +6,7 @@ import Link from "next/link";
 import { PawPrint, Stethoscope, Heart, Scissors } from "lucide-react";
 // Type only: the runtime half of this entry point pulls in node:crypto.
 import type { SignInMethods } from "@bitbaum/accountkit/auth";
+import { DEFAULT_AUTH_LABELS } from "@bitbaum/accountkit/auth/react";
 import { SignUpForm } from "@/components/auth/AuthForms";
 import { USER_ROLE_CONFIG } from "@/lib/config/users";
 import { PORTAL_ROUTES } from "@/lib/config/routes";
@@ -52,7 +53,7 @@ export function RegisterForm({ methods }: { methods: SignInMethods }) {
   return (
     <>
       <h1 className="font-display font-medium text-3xl mb-1 text-[var(--warm-ink)]">
-        Start for free
+        {DEFAULT_AUTH_LABELS.createAccount}
       </h1>
       <p className="text-sm text-[var(--muted)] mb-6">No credit card · Cancel anytime</p>
 
