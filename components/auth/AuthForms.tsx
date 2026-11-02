@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import {
+  DEFAULT_AUTH_LABELS,
   AccountPanel as SharedAccountPanel,
   PasswordRecoveryForm,
   SignInForm as SharedSignInForm,
@@ -41,7 +42,7 @@ export function SignInForm(props: { methods: SignInMethods; next: string; initia
       signInPath={SIGN_IN_PATH}
       signUpLink={
         <Link href={SIGN_UP_PATH} className="link-accent">
-          Start for free
+          {DEFAULT_AUTH_LABELS.createAccount}
         </Link>
       }
     />
@@ -58,7 +59,7 @@ export function SignUpForm(props: { methods: SignInMethods; next: string }) {
       signInPath={SIGN_IN_PATH}
       signInLink={
         <Link href={SIGN_IN_PATH} className="link-accent">
-          Sign in
+          {DEFAULT_AUTH_LABELS.signIn}
         </Link>
       }
     />

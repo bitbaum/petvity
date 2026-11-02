@@ -5,6 +5,7 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 // Type only: the runtime half of this entry point pulls in node:crypto.
 import type { SignInMethods } from "@bitbaum/accountkit/auth";
+import { DEFAULT_AUTH_LABELS } from "@bitbaum/accountkit/auth/react";
 import { SignInForm } from "@/components/auth/AuthForms";
 import { DEMO_ACCOUNT } from "@/lib/config/demo";
 import { POST_LOGIN_PATH } from "@/lib/config/auth";
@@ -41,7 +42,7 @@ export function LoginForm({
   return (
     <>
       <h1 className="font-display font-medium text-3xl mb-1 text-[var(--warm-ink)]">
-        Welcome back
+        {DEFAULT_AUTH_LABELS.signIn}
       </h1>
       <p className="text-sm text-[var(--muted)] mb-7">Your pets missed you 🐾</p>
 
