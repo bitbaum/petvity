@@ -163,5 +163,9 @@ using throwaway accounts that it deleted again:
   (`unable_to_create_user`); AccountKit 0.19.0 fixed it
   (bitbaum/accountkit#56).
 
-Not proven by a machine: a reset mail arriving in a real inbox. Since the
-screens step the reset is AccountKit's; CI follows its mailed link end to end.
+A real password reset is proven live too (2026-11-02, the same `prove`). The
+product's own forgot-password page sent the mail, and it arrived in a real
+throwaway inbox. Its link opened the product's reset page, a new password was
+set there, and that password signed in. The inbox and the account were deleted
+again. Since the screens step the reset is AccountKit's, and CI also follows
+its mailed link end to end.
