@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "@better-auth/passkey": "^1.7.14",
-    "@bitbaum/accountkit": "^0.23.0",
+    "@bitbaum/accountkit": "^0.23.1",
     "@bitbaum/chartkit": "^0.7.0",
     "@bitbaum/mail-kit": "^0.2.0",
     "@bitbaum/whenkit": "^0.3.3",
