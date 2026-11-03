@@ -38,7 +38,11 @@ const NEW_LEGACY_PASSWORD = `synthetic reset password ${run}`;
 
 const EXPECT = {
   orangecat: Boolean(process.env.ORANGECAT_OAUTH_CLIENT_ID),
-  signin: Boolean(process.env.SIGNIN_CLIENT_ID),
+  // Since AccountKit 0.24 the shared sign-in's button names the providers its
+  // service publishes (<SIGNIN_ISSUER>/api/providers), and shows only when
+  // there is one. The journey's synthetic issuer publishes none, so the
+  // button must be hidden: one that leads to an empty page is a dead end.
+  signin: false,
   mail: Boolean(SINK),
 };
 
@@ -132,7 +136,7 @@ try {
     ["Email me a sign-in link instead", EXPECT.mail],
     ["Forgot your password?", EXPECT.mail],
     ["Continue with OrangeCat", EXPECT.orangecat],
-    ["Continue with Google, Apple, GitHub, X or Facebook", EXPECT.signin],
+    [/^Continue with (Google|Apple|GitHub|X|Facebook|Microsoft)/, EXPECT.signin],
     ["Explore the demo — no account needed", true],
   ]);
   await shot(page, "login-methods");
@@ -140,7 +144,7 @@ try {
     ["Create an account", true],
     ["Email me a link instead", EXPECT.mail],
     ["Continue with OrangeCat", EXPECT.orangecat],
-    ["Continue with Google, Apple, GitHub, X or Facebook", EXPECT.signin],
+    [/^Continue with (Google|Apple|GitHub|X|Facebook|Microsoft)/, EXPECT.signin],
   ]);
 
   // ── Sign up through AccountKit's form ──────────────────────────────────
