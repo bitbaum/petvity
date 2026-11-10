@@ -36,13 +36,27 @@ const EMAIL = `journey-${run}@example.test`;
 const PASSWORD = `synthetic journey password ${run}`;
 const NEW_LEGACY_PASSWORD = `synthetic reset password ${run}`;
 
+/** How many providers the shared sign-in (SIGNIN_ISSUER) publishes; 0 when it cannot be read. */
+async function publishedProviders() {
+  if (!process.env.SIGNIN_ISSUER) return 0;
+  try {
+    const r = await fetch(`${process.env.SIGNIN_ISSUER.replace(/\/$/, "")}/api/providers`, {
+      signal: AbortSignal.timeout(10_000),
+    });
+    const { providers } = await r.json();
+    return r.ok && Array.isArray(providers) ? providers.length : 0;
+  } catch {
+    return 0;
+  }
+}
+
 const EXPECT = {
   orangecat: Boolean(process.env.ORANGECAT_OAUTH_CLIENT_ID),
   // Since AccountKit 0.24 the shared sign-in's button names the providers its
   // service publishes (<SIGNIN_ISSUER>/api/providers), and shows only when
-  // there is one. The journey's synthetic issuer publishes none, so the
-  // button must be hidden: one that leads to an empty page is a dead end.
-  signin: false,
+  // there is one: one that leads to an empty page is a dead end. CI points at
+  // the real service, so ask it, as the app does, rather than assume none.
+  signin: Boolean(process.env.SIGNIN_CLIENT_ID) && (await publishedProviders()) > 0,
   mail: Boolean(SINK),
 };
 
@@ -108,8 +122,12 @@ try {
         () => document.documentElement.scrollWidth - window.innerWidth,
       );
       check(overflow <= 0, `${route} at ${width}px has no sideways scroll (${overflow}px)`);
-      const google = phone.getByRole("button", { name: /^(sign in|continue) with google$/i });
-      check((await google.count()) === 0, `${route} at ${width}px has no Google-only button`);
+      // The app's own Google-only button is gone; the shared sign-in may
+      // legitimately read "Continue with Google" when that is all it offers.
+      if (!EXPECT.signin) {
+        const google = phone.getByRole("button", { name: /^(sign in|continue) with google$/i });
+        check((await google.count()) === 0, `${route} at ${width}px has no Google-only button`);
+      }
       await shot(phone, `${width}${route.replaceAll("/", "-")}`);
     }
     await phone.close();
