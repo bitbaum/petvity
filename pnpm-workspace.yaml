@@ -7,15 +7,15 @@ allowBuilds:
   sharp: true
   unrs-resolver: true
 
-# Our own freshly-published packages; exempt them from the minimum-release-age
-# supply-chain window (first-party, not third-party).
+# Our own packages are published by our own tagged workflows; minimumReleaseAge
+# would refuse each fresh publish until it ages. One scope glob covers every
+# @bitbaum package; the four unscoped ones are named (fleet SHARED.md).
 minimumReleaseAgeExclude:
-  - "@bitbaum/mail-kit"
-  - "bip-kit"
-  - "@bitbaum/accountkit"
-  - "@bitbaum/whenkit@0.3.3"
-  - limitkit@0.2.1
-  - "@bitbaum/chartkit@0.7.0"
+  - "@bitbaum/*"
+  - limitkit
+  - bip-kit
+  - threadkit
+  - ai-forms
 
 overrides:
   # Security floors (2026-10-30 dev-toolchain sweep): stay inside the
